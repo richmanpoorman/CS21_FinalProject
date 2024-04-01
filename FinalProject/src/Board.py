@@ -28,20 +28,26 @@ class Board:
     def getAt(self, position : tuple) -> GameObject:
         pass
 
-    def addPlayer(player : Player) -> int: 
+    def addPlayer(self, player : Player) -> int: 
         pass 
 
-    def removePlayer(playerID : int) -> Player:
+    def removePlayer(self, playerID : int) -> Player:
         pass 
 
-    def addInteractable(interactable : Interactable) -> int:
+    def addInteractable(self, interactable : Interactable) -> int:
         pass 
 
-    def removeInteractable(interactableID : int) -> Interactable:
+    def removeInteractable(self, interactableID : int) -> Interactable:
         pass 
 
-    def addGhost(ghost : Ghost) -> int: 
+    def addGhost(self, ghost : Ghost) -> int: 
         pass 
     
-    def removeGhost(ghostID : int) -> Ghost:
+    def removeGhost(self, ghostID : int) -> Ghost:
+        pass 
+
+    def canMoveTo(self, position : tuple) -> bool: 
+        pass
+
+    def getSize(self) -> tuple:
         pass 

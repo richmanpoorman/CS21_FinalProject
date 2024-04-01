@@ -7,4 +7,4 @@ class PowerPellet(Interactable):
         pass 
 
     def onGet(self, player : Player) -> None:
-        pass
+        player.setInvincible()

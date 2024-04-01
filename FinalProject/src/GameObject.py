@@ -2,16 +2,17 @@ from pygame import Surface
 
 class GameObject:
     def __init__(self, position : tuple, surface : tuple):
-        pass 
+        self.setPosition(position)
+        self.setSurface(surface)
 
     def getPosition(self) -> tuple:
-        pass 
+        return self.position
 
     def setPosition(self, position : tuple) -> None:
-        pass 
+        self.position = position 
 
     def getSurface(self) -> Surface: 
-        pass 
+        return self.surface
 
     def setSurface(self, surface : Surface) -> None:
-        pass 
+        self.surface = surface
