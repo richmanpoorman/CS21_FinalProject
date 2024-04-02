@@ -2,8 +2,8 @@ from Interactable import Interactable
 from Player import Player 
 
 class Pellet(Interactable):
-    def __init__(self, position : tuple, surface : tuple):
-        super().__init__(position, surface)
+    def __init__(self, surface : tuple):
+        super().__init__(surface)
         pass 
 
     def onGet(self, player : Player) -> None:

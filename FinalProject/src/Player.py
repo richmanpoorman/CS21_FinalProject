@@ -4,14 +4,15 @@ class Player(GameObject):
     UP, DOWN, LEFT, RIGHT = (0, 1), (0, -1), (-1, 0), (1, 0)
     INVINCIBLE_DURATION   = 10
 
-    def __init__(self, position : tuple, surface : tuple):
-        super().__init__(position, surface)
+    def __init__(self, surface : tuple):
+        super().__init__(surface)
         self.invincibleTimer = 0
 
-    def movePlayer(self, dir : tuple, boardSize : tuple) -> None:
+    @staticmethod
+    def movePlayer(dir : tuple, boardSize : tuple, position : tuple) -> tuple:
         w , h  = boardSize 
         dx, dy = dir 
-        x , y  = self.getPosition()
+        x , y  = position
         newX, newY = x + dx, y + dy 
         
         # Wrap if going off of the board
@@ -23,9 +24,7 @@ class Player(GameObject):
             newY = h - 1 
         elif newY >= h:
             newY = 0
-
-        # Set the position, assuming it is checked that it can move there
-        self.setPosition((newX, newY))
+        return (newX, newY)
 
     
     def isInvincible(self) -> bool:

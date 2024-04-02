@@ -6,23 +6,25 @@ from random import randrange
 class Ghost(GameObject):
     __DIRECTIONS = ((0, 1), (0, -1), (1, 0), (-1, 0))
 
-    def __init__(self, position : tuple, surface : tuple):
-        super().__init__(position, surface)
+    def __init__(self, surface : tuple):
+        super().__init__(surface)
         pass 
 
-    def move(self, board : Board) -> None:
+    @staticmethod
+    def move(board : Board, position : tuple) -> tuple:
         boardSize = board.getSize()
-        newPosition = self.__goInDirection(boardSize)
+        newPosition = Ghost.__goInDirection(boardSize)
         while not board.canMoveTo(newPosition):
-            newPosition = self.__goInDirection(boardSize)
-        self.setPosition(newPosition)
+            newPosition = Ghost.__goInDirection(boardSize)
+        return newPosition
 
     def die(self) -> None:
         pass 
-
-    def __goInDirection(self, boardSize : tuple):
+    
+    @staticmethod
+    def __goInDirection(boardSize : tuple, position : tuple) -> tuple:
         w, h = boardSize 
-        x, y = self.getPosition() 
+        x, y = position
         dx, dy = randrange(0, len(Ghost.__DIRECTIONS))
         newX, newY = x + dx, y + dy 
         
