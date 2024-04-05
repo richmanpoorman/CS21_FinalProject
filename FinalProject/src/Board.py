@@ -90,13 +90,13 @@ class Board:
             Params  : (ID)         objectID := The ID of the object to move
                       ((int, int)) position := The new position of the object
             Purpose : Moves the object to the new position
-            Return  : The GameObject at the new location, or none if it was 
-                      an empty spot
+            Return  : The ID of the object at the new location, or none if it 
+                      was an empty spot
         '''
         if position == self.locations[objectID]:
             return self.gameObject[objectID]
         
-        atPosition = self.gameObject[self.positions[position]] \
+        atPosition = self.positions[position] \
                         if position in self.positions \
                         else None
 
@@ -181,3 +181,12 @@ class Board:
         '''
         return [(id, gameObject) for (id, gameObject) in self.gameObject 
                                  if isinstance(gameObject, objectType)]
+
+    def getPosition(self, objectID : int) -> tuple:
+        '''
+            Name    : getPosition
+            Params  : (ID) objectID := The ID of the object
+            Purpose : Gets the position of the object
+            Return  : ((int, int)) The position of the object
+        '''
+        return self.locations[objectID] if objectID in self.locations else None
