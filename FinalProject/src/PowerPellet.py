@@ -6,5 +6,6 @@ class PowerPellet(Interactable):
         super().__init__(surface)
         pass 
 
-    def onGet(self, player : Player) -> None:
+    def onGet(self, player : Player) -> str:
         player.setInvincible()
+        return "set_invincible"

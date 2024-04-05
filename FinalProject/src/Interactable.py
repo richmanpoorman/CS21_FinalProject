@@ -6,5 +6,5 @@ class Interactable(GameObject):
         super().__init__(surface)
         pass 
 
-    def onGet(self, player : Player) -> None:
+    def onGet(self, player : Player) -> str:
         pass

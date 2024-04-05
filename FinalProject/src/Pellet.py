@@ -6,5 +6,5 @@ class Pellet(Interactable):
         super().__init__(surface)
         pass 
 
-    def onGet(self, player : Player) -> None:
-        pass
+    def onGet(self, player : Player) -> str:
+        return "pellet_pickup"

@@ -33,6 +33,9 @@ class Player(GameObject):
     def setInvincible(self) -> None:
         self.invincibleTimer = Player.INVINCIBLE_DURATION
 
+    def removeInvincible(self) -> None:
+        self.invincibleTimer = 0
+
     def decrementInvincibleTimer(self) -> bool:
         self.invincibleTimer -= 1
         return self.isInvincible()

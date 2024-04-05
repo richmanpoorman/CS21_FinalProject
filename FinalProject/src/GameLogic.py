@@ -1,9 +1,12 @@
 from erpy import stdio_port_connection
 from term import Atom, Pid
+from random import randrange
 
 from Board import Board
 from Ghost import Ghost
 from Player import Player
+from Interactable import Interactable
+
 class GameLogic:
     def __init__(self):
         self.board = Board()
@@ -12,7 +15,14 @@ class GameLogic:
         self.playerIDs = map()
         self.updateQueue = []
         self.run()
-        
+
+    ### SEND BOARD INFORMATION TO ALL USERS ### 
+    def setUpBoard(self):
+        pass
+    
+    def sendFullBoardState(self):
+        pass 
+
     ### RECEIEVE MESSAGES ###
     def updateModel(self) -> None:
         for msg in self.inbox:
@@ -31,9 +41,7 @@ class GameLogic:
             elif command == Atom("right"):
                 self.onPlayerMove(pid, Player.RIGHT)
             
-
-
-    def onPlayerMove(self, pid : Pid, direction : tuple):
+    def onPlayerMove(self, pid : Pid, direction : tuple) -> None:
         player = self.playerIDs[pid]
         newPosition = \
             Player.movePlayer(direction, 
@@ -42,32 +50,34 @@ class GameLogic:
         canMove, blocker = self.board.canMoveTo(newPosition)
         if canMove: 
             self.board.moveObject(player, newPosition)
-        
-
-
-    def onClose(self) -> None:
-        self.isRunning = False
-
-    def onJoin(self, pid : Pid) -> None:
-        self.playerIDs[pid] = self.board.addObject(Player(), (0, 0))
-
-    def getPickUp(self, interactableID : int):
-
-
-    ### RUN GAME LOGIC ###
+            self.tryToPickUp(blocker, player)
+        else: 
+            if not blocker:
+                return
+            isInvincible = self.board.getObject(player).isInvincible()
+            blockedBy = self.board.getObject(blocker)
+            if isinstance(blockedBy, Ghost):
+                if isInvincible:
+                    self.ghostDie(blocker)
+                else:
+                    self.playerDie(player)
+            elif isinstance(blockedBy, Player):
+                if isInvincible and not blockedBy.isInvincible():
+                    self.playerDie(blocker)
+    
+    ### RUN NON-PLAYER LOGIC GAME LOGIC ###
 
     def runLogic(self) -> None:
         self.moveAllGhosts()
-        pass 
+        self.decrementPlayerTimers()
 
     def moveAllGhosts(self) -> None:
         ghosts = self.board.getAllOfType(Ghost)
         for ghostID, _ in ghosts: 
             self.moveSingleGhost(ghostID)
 
-    def moveSingleGhost(self, ghostID : int):
-        ghostPos = self.board.getPosition(ghostID)
-        newPosition = Ghost.move(self.board, ghostPos)
+    def moveSingleGhost(self, ghostID : int) -> None:
+        newPosition = self.moveGhost(ghostID)
         goToID = self.board.moveObject(ghostID, newPosition) 
         if goToID:
             atPos = self.board.getObject(goToID)
@@ -77,17 +87,70 @@ class GameLogic:
                 else:
                     self.playerDie(goToID)
 
+    def decrementPlayerTimers(self) -> None:
+        players = self.board.getAllOfType(Player)
+        for playerID, player in players:
+            isInvincible = player.decrementInvincibleTimer()
+            if isInvincible:
+                self.updateQueue.append((Atom("player_invincible"), {"id" : playerID}))
+            else:
+                self.updateQueue.append((Atom("player_vulnerable"), {"id" : playerID}))
+    
+    def moveGhost(self, ghostID : int) -> None:
+        newPosition = self.moveGhostAttempt(ghostID)
+        canMove, blocker = self.board.canMoveTo(newPosition)
+
+    def moveGhostAttempt(self, ghostID : int) -> tuple:
+        directions = ((0, 1), (1, 0), (0, -1), (-1, 0))
+        w, h = self.board.getSize()
+        x, y = self.board.getPosition(ghostID)
+        dx, dy = randrange(0, len(directions))
+        newX, newY = x + dx, y + dy 
+        
+        # Wrap if going off of the board
+        if newX < 0:
+            newX = w - 1 
+        elif newX >= w:
+            newX = 0 
+        elif newY < 0:
+            newY = h - 1 
+        elif newY >= h:
+            newY = 0
+
+        return (newX, newY)
+    ### STATE UPDATES ### 
 
     def playerDie(self, playerID : int) -> None:
-        pass 
+        self.updateQueue.append((Atom("player_die"), {"id" : playerID}))
     
     def ghostDie(self, ghostID : int) -> None: 
-        pass 
+        self.updateQueue.append((Atom("ghost_die"), {"id" : ghostID}))
+    
+    def onClose(self) -> None:
+        self.isRunning = False
+        self.updateQueue.append((Atom("quit"), map()))
 
+    def onJoin(self, pid : Pid) -> None:
+        self.playerIDs[pid] = self.board.addObject(Player(), (0, 0))
+        self.updateQueue.append((Atom("player_join", {"id" : self.playerIDs[pid]})))
+
+    def tryToPickUp(self, interactable : int, player : int) -> None:
+        if not interactable:
+            return 
+        blockerObject = self.board.getObject(interactable) if interactable \
+                                                           else None
+        if isinstance(blockerObject, Interactable):
+            pickupType = blockerObject.onGet(self.board.getObject(player))
+            self.updateQueue.append((Atom(pickupType)), {"id" : interactable, 
+                                                         "playerID" : player})
+
+    
     ### SEND MESSAGES ###
 
     def sendUpdates(self) -> None: 
-        pass 
+        for msg in self.updateQueue:
+            self.port.send(msg)
+        self.updateQueue = []
 
     def run(self) -> None:
         while self.isRunning: 
