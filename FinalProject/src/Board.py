@@ -90,13 +90,13 @@ class Board:
             Params  : (ID)         objectID := The ID of the object to move
                       ((int, int)) position := The new position of the object
             Purpose : Moves the object to the new position
-            Return  : The GameObject at the new location, or none if it was 
-                      an empty spot
+            Return  : The ID of the object at the new location, or none if it 
+                      was an empty spot
         '''
         if position == self.locations[objectID]:
             return self.gameObject[objectID]
         
-        atPosition = self.gameObject[self.positions[position]] \
+        atPosition = self.positions[position] \
                         if position in self.positions \
                         else None
 

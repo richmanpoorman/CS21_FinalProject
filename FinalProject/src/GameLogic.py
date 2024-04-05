@@ -2,6 +2,8 @@ from erpy import stdio_port_connection
 from term import Atom
 
 from Board import Board
+from Ghost import Ghost
+from Player import Player
 class GameLogic:
     def __init__(self):
         self.board = Board()
@@ -29,7 +31,19 @@ class GameLogic:
     ### RUN GAME LOGIC ###
 
     def runLogic(self) -> None:
-        
+        pass 
+
+    def moveGhosts(self) -> None:
+        ghosts = self.board.getAllOfType(Ghost)
+        for ghostID, _ in ghosts: 
+            ghostPos = self.board.getPosition(ghostID)
+            newPosition = Ghost.move(self.board, ghostPos)
+            canMove, blocker = self.board.moveObject(ghostID, newPosition)
+
+            if not canMove:
+                if isinstance(blocker, Player):
+                    
+
     
     ### SEND MESSAGES ###
 
