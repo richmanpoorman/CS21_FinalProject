@@ -8,21 +8,25 @@ from Wall import Wall
 
 class Board:
     BOARD_SIZE = (10, 11)
-    def __init__(self):
+    def __init__(self, boardSize : tuple = BOARD_SIZE):
         '''
             Name    : init
             Params  : (None)
             Purpose : Creates a new board to add things to 
         '''
-        self.size = Board.BOARD_SIZE
+        self.size = boardSize
         # Keeps track of the IDS of the objects
         self.idCount = 0 
         # Maps IDs -> GameObject
         self.gameObject = map() 
-        # Maps position -> set(ID)
+        # Maps position -> ID
         self.locations = map()
         # Maps ID -> position 
         self.positions = map() 
+
+        # Checks what things are on top of another
+            # Maps ID -> ID or ID -> None
+        self.onTopOf = map() 
 
     def getBoard(self) -> np.ndarray:
         '''
@@ -42,7 +46,7 @@ class Board:
         '''
             Name    : getAt
             Params  : ((int, int)) position := The position of the gameObject
-            Purpose : Gets the game object at the given position, 
+            Purpose : Gets the top-most game object at the given position, 
                       or none if there is nothing there
             Return  : (GameObject) The object at that location, 
                                    or none if there is nothing there
@@ -50,6 +54,18 @@ class Board:
         return None if position not in self.locations \
                     else self.gameObject[self.locations[position]]
     
+    def getAtAll(self, position : tuple) -> GameObject:
+        
+        current = self.positions[position]
+        onSquare = []
+        while current: 
+            onSquare.append(current)
+            current = self.onTopOf[current]
+            
+        return onSquare
+
+
+
     def addObject(self, gameObject : GameObject, position : tuple) -> int:
         '''
             Name    : addObject
@@ -61,6 +77,9 @@ class Board:
         objectID = self.idCount 
         self.idCount += 1
         self.gameObject[objectID] = gameObject 
+        self.onTopOf[objectID] = self.positions[position] \
+                                    if position in self.positions \
+                                    else None
         self.locations[objectID] = position 
         self.positions[position] = objectID
         return objectID
@@ -74,10 +93,26 @@ class Board:
             Return  : The GameObject at the new location, or none if it was 
                       an empty spot
         '''
+        if position == self.locations[objectID]:
+            return self.gameObject[objectID]
+        
         atPosition = self.gameObject[self.positions[position]] \
                         if position in self.positions \
                         else None
-        del self.positions[self.locations[objectID]]
+
+        # Replace the object with what it is on top of
+        if not self.onTopOf[objectID]:
+            del self.positions[self.locations[objectID]]
+        else: 
+            self.positions[self.locations[objectID]] = self.onTopOf[objectID]
+        
+        # Put the object on top of whatever is there
+        if not atPosition:
+            self.onTopOf[objectID] = None 
+        else:
+            self.onTopOf[objectID] = self.positions[position]
+        
+        # Move the object to the location
         self.locations[objectID] = position 
         self.positions[position] = objectID 
 
@@ -90,10 +125,15 @@ class Board:
             Purpose : Removes the object from the board
             Return  : (GameObject) The GameObject removed from the board
         '''
-        del self.positions[self.locations[objectID]]
+        if not self.onTopOf[objectID]:
+            del self.positions[self.locations[objectID]]
+        else: 
+            self.positions[self.locations[objectID]] = self.onTopOf[objectID]
+        
         del self.locations[objectID]
         gameObject = self.getObject(objectID)
         del self.gameObject[objectID]
+        del self.onTopOf[objectID]
 
         return gameObject
     
