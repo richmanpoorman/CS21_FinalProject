@@ -20,7 +20,7 @@ class InputListener:
 
     
     def sendInput(self, inputValue : map):
-        """Message format: PID, command"""
+        """Message format: {PID, command}"""
         # TODO: Use the erlang channel to send the (string, value) map over
         # TODO: Need testing if anyone is able to install erpy
         _, port = stdio_port_connection()
@@ -44,8 +44,8 @@ class InputListener:
     def __format_message(self, inputValue: map):
         """Format the movement message according to specified pattern."""
         if "QUIT" in inputValue:
-            return os.getpid(), "quit"
+            return "{" + os.getpid() + ", quit}"
         elif "KEY" in inputValue:
-            return os.getpgid(), self.__map_key_to_direction(inputValue["KEY"])
+            return "{" + f"{os.getpid()}, {self.__map_key_to_direction(inputValue['KEY'])}" + "}"
         return None
         
