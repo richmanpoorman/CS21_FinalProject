@@ -181,3 +181,12 @@ class Board:
         '''
         return [(id, gameObject) for (id, gameObject) in self.gameObject 
                                  if isinstance(gameObject, objectType)]
+
+    def getPosition(self, objectID : int) -> tuple:
+        '''
+            Name    : getPosition
+            Params  : (ID) objectID := The ID of the object
+            Purpose : Gets the position of the object
+            Return  : ((int, int)) The position of the object
+        '''
+        return self.locations[objectID] if objectID in self.locations else None
