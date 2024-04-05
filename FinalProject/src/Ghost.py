@@ -1,4 +1,5 @@
 from GameObject import GameObject
+from Player import Player
 from Board import Board 
 
 from random import randrange
@@ -14,7 +15,8 @@ class Ghost(GameObject):
     def move(board : Board, position : tuple) -> tuple:
         boardSize = board.getSize()
         newPosition = Ghost.__goInDirection(boardSize)
-        while not board.canMoveTo(newPosition):
+        canGoTo, blocker = board.canMoveTo(newPosition)
+        while not canGoTo and not isinstance(board.getObject(blocker), Player):
             newPosition = Ghost.__goInDirection(boardSize)
         return newPosition
 
