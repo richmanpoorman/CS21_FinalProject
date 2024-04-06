@@ -47,7 +47,9 @@ class GameLogic:
             Player.movePlayer(direction, 
                               self.board.getSize(), 
                               self.board.getPosition(self.playerIDs[pid]))
+        
         canMove, blocker = self.board.canMoveTo(newPosition)
+
         if canMove: 
             self.board.moveObject(player, newPosition)
             self.tryToPickUp(blocker, player)
@@ -74,32 +76,29 @@ class GameLogic:
     def moveAllGhosts(self) -> None:
         ghosts = self.board.getAllOfType(Ghost)
         for ghostID, _ in ghosts: 
-            self.moveSingleGhost(ghostID)
-
-    def moveSingleGhost(self, ghostID : int) -> None:
-        newPosition = self.moveGhost(ghostID)
-        goToID = self.board.moveObject(ghostID, newPosition) 
-        if goToID:
-            atPos = self.board.getObject(goToID)
-            if isinstance(atPos, Player):
-                if atPos.isInvincible():
-                    self.ghostDie(ghostID) 
-                else:
-                    self.playerDie(goToID)
-
-    def decrementPlayerTimers(self) -> None:
-        players = self.board.getAllOfType(Player)
-        for playerID, player in players:
-            isInvincible = player.decrementInvincibleTimer()
-            if isInvincible:
-                self.updateQueue.append((Atom("player_invincible"), {"id" : playerID}))
-            else:
-                self.updateQueue.append((Atom("player_vulnerable"), {"id" : playerID}))
+            self.moveGhost(ghostID)
     
     def moveGhost(self, ghostID : int) -> None:
-        newPosition = self.moveGhostAttempt(ghostID)
-        canMove, blocker = self.board.canMoveTo(newPosition)
+        attemptCounter = 0
+        while attemptCounter < 1000:
+            newPosition = self.moveGhostAttempt(ghostID)
+            canMove, blocker = self.board.canMoveTo(newPosition)
+            if canMove:
+                self.board.moveObject(ghostID, newPosition)
+                return 
+            
+            blockedBy = self.board.getObject(blocker) 
+            if isinstance(blockedBy, Player):
+                if blockedBy.isInvincible():
+                    self.ghostDie(ghostID)
+                else:
+                    self.playerDie(blocker)
+                    self.board.moveObject(ghostID, newPosition)
+                return
+            
+            attemptCounter += 1
 
+    
     def moveGhostAttempt(self, ghostID : int) -> tuple:
         directions = ((0, 1), (1, 0), (0, -1), (-1, 0))
         w, h = self.board.getSize()
@@ -144,6 +143,14 @@ class GameLogic:
             self.updateQueue.append((Atom(pickupType)), {"id" : interactable, 
                                                          "playerID" : player})
 
+    def decrementPlayerTimers(self) -> None:
+        players = self.board.getAllOfType(Player)
+        for playerID, player in players:
+            isPreviouslyInvincible = player.isInvincible()
+            isInvincible = player.decrementInvincibleTimer()
+            
+            if isPreviouslyInvincible and not isInvincible:
+                self.updateQueue.append((Atom("player_vulnerable"), {"id" : playerID}))
     
     ### SEND MESSAGES ###
 
