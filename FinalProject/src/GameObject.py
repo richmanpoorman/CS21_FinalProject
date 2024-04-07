@@ -1,7 +1,7 @@
 from pygame import Surface 
 
 class GameObject:
-    def __init__(self, surface : tuple):
+    def __init__(self, surface : Surface):
         self.setSurface(surface)
         self.onTopOf = None
 
