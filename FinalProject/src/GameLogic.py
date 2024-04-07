@@ -44,9 +44,8 @@ class GameLogic:
     def onPlayerMove(self, pid : Pid, direction : tuple) -> None:
         player = self.playerIDs[pid]
         newPosition = \
-            Player.movePlayer(direction, 
-                              self.board.getSize(), 
-                              self.board.getPosition(self.playerIDs[pid]))
+            self.movePlayer(direction, 
+                            self.board.getPosition(self.playerIDs[pid]))
         
         canMove, blocker = self.board.canMoveTo(newPosition)
 
@@ -57,16 +56,33 @@ class GameLogic:
             if not blocker:
                 return
             isInvincible = self.board.getObject(player).isInvincible()
-            blockedBy = self.board.getObject(blocker)
-            if isinstance(blockedBy, Ghost):
+            
+            if self.board.isObjectOfType(blocker, Ghost):
                 if isInvincible:
                     self.ghostDie(blocker)
                 else:
                     self.playerDie(player)
-            elif isinstance(blockedBy, Player):
+            elif self.board.isObjectOfType(blocker, Player):
+                blockedBy = self.board.getObject(blocker)
                 if isInvincible and not blockedBy.isInvincible():
                     self.playerDie(blocker)
     
+    def movePlayer(self, dir : tuple, position : tuple) -> tuple:
+        w , h  = self.board.getSize()
+        dx, dy = dir 
+        x , y  = position
+        newX, newY = x + dx, y + dy 
+        
+        # Wrap if going off of the board
+        if newX < 0:
+            newX = w - 1 
+        elif newX >= w:
+            newX = 0 
+        elif newY < 0:
+            newY = h - 1 
+        elif newY >= h:
+            newY = 0
+        return (newX, newY)
     ### RUN NON-PLAYER LOGIC GAME LOGIC ###
 
     def runLogic(self) -> None:
@@ -88,7 +104,7 @@ class GameLogic:
                 return 
             
             blockedBy = self.board.getObject(blocker) 
-            if isinstance(blockedBy, Player):
+            if self.board.isObjectOfType(blocker, Player):
                 if blockedBy.isInvincible():
                     self.ghostDie(ghostID)
                 else:
@@ -136,9 +152,8 @@ class GameLogic:
     def tryToPickUp(self, interactable : int, player : int) -> None:
         if not interactable:
             return 
-        blockerObject = self.board.getObject(interactable) if interactable \
-                                                           else None
-        if isinstance(blockerObject, Interactable):
+        if self.board.isObjectOfType(interactable, Interactable):
+            blockerObject = self.board.getObject(interactable)
             pickupType = blockerObject.onGet(self.board.getObject(player))
             self.updateQueue.append((Atom(pickupType)), {"id" : interactable, 
                                                          "playerID" : player})

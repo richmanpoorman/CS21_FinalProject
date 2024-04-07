@@ -190,3 +190,15 @@ class Board:
             Return  : ((int, int)) The position of the object
         '''
         return self.locations[objectID] if objectID in self.locations else None
+    
+    def isObjectOfType(self, objectID : int, checkType) -> bool:
+        '''
+            Name    : isObjectOfType
+            Params  : (ID) objectID     := The ID of the object
+                      (class) checkType := The type to check the is object is
+            Purpose : Returns if the object is of the suspected type
+            Return  : (bool) Whether the object is the given type
+        '''
+        if objectID not in self.gameObject:
+            return False 
+        return isinstance(self.gameObject[objectID], checkType)

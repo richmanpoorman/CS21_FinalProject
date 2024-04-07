@@ -8,24 +8,6 @@ class Player(GameObject):
         super().__init__(surface)
         self.invincibleTimer = 0
 
-    @staticmethod
-    def movePlayer(dir : tuple, boardSize : tuple, position : tuple) -> tuple:
-        w , h  = boardSize 
-        dx, dy = dir 
-        x , y  = position
-        newX, newY = x + dx, y + dy 
-        
-        # Wrap if going off of the board
-        if newX < 0:
-            newX = w - 1 
-        elif newX >= w:
-            newX = 0 
-        elif newY < 0:
-            newY = h - 1 
-        elif newY >= h:
-            newY = 0
-        return (newX, newY)
-
     
     def isInvincible(self) -> bool:
         return self.invincibleTimer > 0
