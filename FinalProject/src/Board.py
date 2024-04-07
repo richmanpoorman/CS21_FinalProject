@@ -16,12 +16,12 @@ class Board:
         '''
         self.size = boardSize
         # Keeps track of the IDS of the objects
-        self.idCount = 0 
+        self.idCount = 1
         # dicts IDs -> GameObject
         self.gameObject = dict() 
-        # dicts position -> ID
+        # dicts ID -> position
         self.locations = dict()
-        # dicts ID -> position 
+        # dicts position -> ID 
         self.positions = dict() 
 
         # Checks what things are on top of another
@@ -37,7 +37,7 @@ class Board:
                                    their respective locations
         '''
         board = np.empty(self.size, GameObject)
-        for loc, gameObjectID in self.locations.items():
+        for loc, gameObjectID in self.positions.items():
             board[loc] = self.gameObject[gameObjectID]
 
         return board 
@@ -51,20 +51,18 @@ class Board:
             Return  : (GameObject) The object at that location, 
                                    or none if there is nothing there
         '''
-        return None if position not in self.locations \
-                    else self.gameObject[self.locations[position]]
+        return None if position not in self.positions \
+                    else self.gameObject[self.positions[position]]
     
-    def getAtAll(self, position : tuple) -> GameObject:
+    def getAtAll(self, position : tuple) -> list:
         
-        current = self.positions[position]
+        current = self.__getAtID(position)
         onSquare = []
         while current: 
-            onSquare.append(current)
-            current = self.onTopOf[current]
+            onSquare.append(self.getObject(current))
+            current = self.__getIDUnder(current)
             
         return onSquare
-
-
 
     def addObject(self, gameObject : GameObject, position : tuple) -> int:
         '''
@@ -77,11 +75,8 @@ class Board:
         objectID = self.idCount 
         self.idCount += 1
         self.gameObject[objectID] = gameObject 
-        self.onTopOf[objectID] = self.positions[position] \
-                                    if position in self.positions \
-                                    else None
-        self.locations[objectID] = position 
-        self.positions[position] = objectID
+        self.__setOnTopOf(objectID, position)
+
         return objectID
 
     def moveObject(self, objectID : int, position : tuple) -> GameObject:
@@ -93,28 +88,21 @@ class Board:
             Return  : The ID of the object at the new location, or none if it 
                       was an empty spot
         '''
-        if position == self.locations[objectID]:
-            return self.gameObject[objectID]
+
+        originalPosition = self.__getIDPosition(objectID)
+        if position == originalPosition:
+            return self.getObject(objectID)
         
-        atPosition = self.positions[position] \
-                        if position in self.positions \
-                        else None
+        if self.__getAtID(originalPosition) != objectID:
+            raise Exception("Moving with something on top")
+        
+        atPosition = self.__getAtID(position)
 
         # Replace the object with what it is on top of
-        if not self.onTopOf[objectID]:
-            del self.positions[self.locations[objectID]]
-        else: 
-            self.positions[self.locations[objectID]] = self.onTopOf[objectID]
+        self.__takeOffTop(objectID, originalPosition)
         
         # Put the object on top of whatever is there
-        if not atPosition:
-            self.onTopOf[objectID] = None 
-        else:
-            self.onTopOf[objectID] = self.positions[position]
-        
-        # Move the object to the location
-        self.locations[objectID] = position 
-        self.positions[position] = objectID 
+        self.__setOnTopOf(objectID, position)
 
         return atPosition 
 
@@ -125,15 +113,11 @@ class Board:
             Purpose : Removes the object from the board
             Return  : (GameObject) The GameObject removed from the board
         '''
-        if not self.onTopOf[objectID]:
-            del self.positions[self.locations[objectID]]
-        else: 
-            self.positions[self.locations[objectID]] = self.onTopOf[objectID]
+        self.__takeOffTop(objectID, self.__getIDPosition(objectID))
         
         del self.locations[objectID]
         gameObject = self.getObject(objectID)
         del self.gameObject[objectID]
-        del self.onTopOf[objectID]
 
         return gameObject
     
@@ -201,4 +185,31 @@ class Board:
         '''
         if objectID not in self.gameObject:
             return False 
-        return isinstance(self.gameObject[objectID], checkType)
+        return isinstance(self.getObject(objectID), checkType)
+    
+    
+    def __getAtID(self, position : tuple) -> int: 
+        return self.positions[position] if position in self.positions else None
+    
+    def __setAtID(self, objectID : int, position : tuple) -> None: 
+        self.locations[objectID] = position 
+        self.positions[position] = objectID 
+
+    def __getIDPosition(self, objectID : int) -> tuple:
+        return self.locations[objectID] if objectID in self.locations else None
+
+    def __getIDUnder(self, objectID : int) -> int:
+        return self.onTopOf[objectID] if objectID in self.onTopOf else None
+    
+    def __setOnTopOf(self, objectID : int, position : tuple):
+        idAtPosition = self.__getAtID(position) 
+        self.onTopOf[objectID] = idAtPosition
+        self.__setAtID(objectID, position)
+
+    def __takeOffTop(self, objectID : int, position : tuple): 
+        idUnder = self.__getIDUnder(objectID)
+        del self.onTopOf[objectID]
+        if idUnder:
+            self.__setAtID(idUnder, position)
+        else:
+            del self.positions[position]
