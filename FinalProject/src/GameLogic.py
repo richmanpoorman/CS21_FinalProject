@@ -12,7 +12,7 @@ class GameLogic:
         self.board = Board()
         self.isRunning = True
         self.inbox, self.port = stdio_port_connection() 
-        self.playerIDs = map()
+        self.playerIDs = dict()
         self.updateQueue = []
         self.run()
 
@@ -143,7 +143,7 @@ class GameLogic:
     
     def onClose(self) -> None:
         self.isRunning = False
-        self.updateQueue.append((Atom("quit"), map()))
+        self.updateQueue.append((Atom("quit"), dict()))
 
     def onJoin(self, pid : Pid) -> None:
         self.playerIDs[pid] = self.board.addObject(Player(), (0, 0))

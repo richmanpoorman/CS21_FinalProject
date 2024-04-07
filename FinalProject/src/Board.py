@@ -17,16 +17,16 @@ class Board:
         self.size = boardSize
         # Keeps track of the IDS of the objects
         self.idCount = 0 
-        # Maps IDs -> GameObject
-        self.gameObject = map() 
-        # Maps position -> ID
-        self.locations = map()
-        # Maps ID -> position 
-        self.positions = map() 
+        # dicts IDs -> GameObject
+        self.gameObject = dict() 
+        # dicts position -> ID
+        self.locations = dict()
+        # dicts ID -> position 
+        self.positions = dict() 
 
         # Checks what things are on top of another
-            # Maps ID -> ID or ID -> None
-        self.onTopOf = map() 
+            # dicts ID -> ID or ID -> None
+        self.onTopOf = dict() 
 
     def getBoard(self) -> np.ndarray:
         '''
@@ -172,7 +172,7 @@ class Board:
         '''
         return self.size
 
-    def getAllOfType(self, objectType) -> map:
+    def getAllOfType(self, objectType) -> dict:
         '''
             Name    : getAllOfType
             Params  : (Class) The class to get the types of 
