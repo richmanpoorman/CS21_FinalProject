@@ -113,7 +113,11 @@ class Board:
             Purpose : Removes the object from the board
             Return  : (GameObject) The GameObject removed from the board
         '''
-        self.__takeOffTop(objectID, self.__getIDPosition(objectID))
+        originalPosition = self.__getIDPosition(objectID)
+        if self.__getAtID(originalPosition) != objectID:
+            raise Exception("Removing with something on top")
+        
+        self.__takeOffTop(objectID, originalPosition)
         
         del self.locations[objectID]
         gameObject = self.getObject(objectID)

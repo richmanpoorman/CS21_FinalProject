@@ -89,6 +89,26 @@ def moveStacked():
     assert board.getAt((0, 0)) == test1, "Board has (0, 0) = " + str(board.getAt((0, 0)))
     assert board.getAt((1, 1)) == test2, "Board has (1, 1) = " + str(board.getAt((1, 1)))
 
+def removeObject():
+    board = Board((2, 2)) 
+    test = GameObject(None) 
+    t = board.addObject(test, (0, 0))
+    removed = board.removeObject(t)
+    print(board.getBoard())
+    assert removed == test, "Wrong Object: " + str(removed)
+    assert board.getAt((0, 0)) == None, "Object: " + board.getAt((0, 0))
+
+def removeStacked(): 
+    board = Board((2, 2)) 
+    test1 = GameObject(None) 
+    test2 = GameObject(None) 
+    t1 = board.addObject(test1, (0, 0)) 
+    t2 = board.addObject(test2, (0, 0)) 
+    removed = board.removeObject(t2) 
+    print(board.getBoard())
+    assert removed == test2, "Wrong Object: " + str(removed) 
+    assert board.getAt((0, 0)) == test1, "Wrong (0, 0): " + board.getAt((0, 0))
+
 tests = [makeBoard, 
          makeSmallBoard, 
          getBoard, 
@@ -96,13 +116,15 @@ tests = [makeBoard,
          addMultipleObjectToBoard,
          addOnTop,
          moveTest,
-         moveStacked] 
+         moveStacked,
+         removeObject,
+         removeStacked] 
 testID = 1
 for test in tests:
-    print("TestID: ", testID, "\n")
+    print("TestID: ", testID)
     try:
         test() 
     except Exception as e:
         print("Exception: ", e)
-    print("\nTest Done\n")
+    print("Test Done\n")
     testID += 1
