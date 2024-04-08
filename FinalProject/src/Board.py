@@ -18,7 +18,7 @@ class Board:
         # Keeps track of the IDS of the objects
         self.idCount = 1
         # dicts IDs -> GameObject
-        self.gameObject = dict() 
+        self.gameObject = dict()
         # dicts ID -> position
         self.locations = dict()
         # dicts position -> ID 
@@ -42,7 +42,7 @@ class Board:
 
         return board 
 
-    def getAt(self, position : tuple) -> GameObject:
+    def getAt(self, position : tuple) -> GameObject | None:
         '''
             Name    : getAt
             Params  : ((int, int)) position := The position of the gameObject
@@ -79,7 +79,7 @@ class Board:
 
         return objectID
 
-    def moveObject(self, objectID : int, position : tuple) -> GameObject:
+    def moveObject(self, objectID : int, position : tuple) -> GameObject | None:
         '''
             Name    : moveObject
             Params  : (ID)         objectID := The ID of the object to move
@@ -90,13 +90,19 @@ class Board:
         '''
 
         originalPosition = self.__getIDPosition(objectID)
+        if not originalPosition:
+            raise Exception("Move object that doesn't exist")
+
         if position == originalPosition:
-            return self.getObject(objectID)
+            atSquare = self.getObject(objectID)
+            if not atSquare:
+                raise Exception("Moving nothing")
+            return atSquare
         
         if self.__getAtID(originalPosition) != objectID:
             raise Exception("Moving with something on top")
         
-        atPosition = self.__getAtID(position)
+        atPosition = self.getAt(position)
 
         # Replace the object with what it is on top of
         self.__takeOffTop(objectID, originalPosition)
@@ -114,6 +120,9 @@ class Board:
             Return  : (GameObject) The GameObject removed from the board
         '''
         originalPosition = self.__getIDPosition(objectID)
+        if not originalPosition:
+            raise Exception("Removing something that doesn't exist")
+
         if self.__getAtID(originalPosition) != objectID:
             raise Exception("Removing with something on top")
         
@@ -122,10 +131,11 @@ class Board:
         del self.locations[objectID]
         gameObject = self.getObject(objectID)
         del self.gameObject[objectID]
-
+        if not gameObject:
+            raise Exception("No object found to remove")
         return gameObject
     
-    def getObject(self, objectID : int) -> GameObject:
+    def getObject(self, objectID : int) -> GameObject | None:
         '''
             Name    : getObject
             Params  : (ID) objectID := The ID of the object to get
@@ -160,7 +170,7 @@ class Board:
         '''
         return self.size
 
-    def getAllOfType(self, objectType) -> dict:
+    def getAllOfType(self, objectType) -> list:
         '''
             Name    : getAllOfType
             Params  : (Class) The class to get the types of 
@@ -177,7 +187,9 @@ class Board:
             Purpose : Gets the position of the object
             Return  : ((int, int)) The position of the object
         '''
-        return self.locations[objectID] if objectID in self.locations else None
+        if objectID not in self.locations:
+            raise Exception("Try to get position of object that doesn't exist")
+        return self.locations[objectID]
     
     def isObjectOfType(self, objectID : int, checkType) -> bool:
         '''
@@ -192,17 +204,17 @@ class Board:
         return isinstance(self.getObject(objectID), checkType)
     
     
-    def __getAtID(self, position : tuple) -> int: 
+    def __getAtID(self, position : tuple) -> int | None: 
         return self.positions[position] if position in self.positions else None
     
     def __setAtID(self, objectID : int, position : tuple) -> None: 
         self.locations[objectID] = position 
         self.positions[position] = objectID 
 
-    def __getIDPosition(self, objectID : int) -> tuple:
+    def __getIDPosition(self, objectID : int) -> tuple | None:
         return self.locations[objectID] if objectID in self.locations else None
 
-    def __getIDUnder(self, objectID : int) -> int:
+    def __getIDUnder(self, objectID : int) -> int | None:
         return self.onTopOf[objectID] if objectID in self.onTopOf else None
     
     def __setOnTopOf(self, objectID : int, position : tuple):

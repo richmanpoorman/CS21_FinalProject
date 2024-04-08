@@ -4,8 +4,9 @@ class Player(GameObject):
     UP, DOWN, LEFT, RIGHT = (0, 1), (0, -1), (-1, 0), (1, 0)
     INVINCIBLE_DURATION   = 10
 
-    def __init__(self, surface : tuple):
-        super().__init__(surface)
+    def __init__(self):
+        # TODO:: Replace the surface with the starting image
+        super().__init__(None)
         self.invincibleTimer = 0
 
     

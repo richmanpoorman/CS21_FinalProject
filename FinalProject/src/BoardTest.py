@@ -30,10 +30,10 @@ def addObjectToBoard():
 
 def addMultipleObjectToBoard():
     board = Board((2, 2))
-    testP = Player(None) 
-    testI = Interactable(None)
-    testG = Ghost(None)
-    testW = Wall(None)
+    testP = Player() 
+    testI = Interactable()
+    testG = Ghost()
+    testW = Wall()
     board.addObject(testP, (0, 0))
     board.addObject(testI, (0, 1))
     board.addObject(testG, (1, 0))
@@ -57,9 +57,9 @@ def addOnTop():
     assert test2 == board.getAt((1, 1)), "1: Got: " + str(board.getAt((1, 1)))
     assert [test2, test1] == board.getAtAll((1, 1)), "2: Got: " + str(board.getAtAll((1, 1)))
 
-    testG = Ghost(None)
-    testP = Player(None) 
-    testI = Interactable(None) 
+    testG = Ghost()
+    testP = Player() 
+    testI = Interactable() 
     
     board.addObject(testI, (0, 0))
     board.addObject(testP, (0, 0))
@@ -96,7 +96,7 @@ def removeObject():
     removed = board.removeObject(t)
     print(board.getBoard())
     assert removed == test, "Wrong Object: " + str(removed)
-    assert board.getAt((0, 0)) == None, "Object: " + board.getAt((0, 0))
+    assert board.getAt((0, 0)) == None, "Object: " + str(board.getAt((0, 0)))
 
 def removeStacked(): 
     board = Board((2, 2)) 
@@ -107,7 +107,7 @@ def removeStacked():
     removed = board.removeObject(t2) 
     print(board.getBoard())
     assert removed == test2, "Wrong Object: " + str(removed) 
-    assert board.getAt((0, 0)) == test1, "Wrong (0, 0): " + board.getAt((0, 0))
+    assert board.getAt((0, 0)) == test1, "Wrong (0, 0): " + str(board.getAt((0, 0)))
 
 tests = [makeBoard, 
          makeSmallBoard, 

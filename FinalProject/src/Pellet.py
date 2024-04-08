@@ -2,9 +2,9 @@ from Interactable import Interactable
 from Player import Player 
 
 class Pellet(Interactable):
-    def __init__(self, surface : tuple):
-        super().__init__(surface)
-        pass 
+    def __init__(self):
+        # TODO:: Replace the surface with the starting image
+        super().__init__(None)
 
     def onGet(self, player : Player) -> str:
         return "pellet_pickup"

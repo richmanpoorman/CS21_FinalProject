@@ -55,7 +55,9 @@ class GameLogic:
         else: 
             if not blocker:
                 return
-            isInvincible = self.board.getObject(player).isInvincible()
+
+            playerObject = self.board.getObject(player)
+            isInvincible = playerObject.isInvincible()
             
             if self.board.isObjectOfType(blocker, Ghost):
                 if isInvincible:
@@ -104,6 +106,7 @@ class GameLogic:
                 return 
             
             blockedBy = self.board.getObject(blocker) 
+
             if self.board.isObjectOfType(blocker, Player):
                 if blockedBy.isInvincible():
                     self.ghostDie(ghostID)
@@ -119,7 +122,7 @@ class GameLogic:
         directions = ((0, 1), (1, 0), (0, -1), (-1, 0))
         w, h = self.board.getSize()
         x, y = self.board.getPosition(ghostID)
-        dx, dy = randrange(0, len(directions))
+        dx, dy = directions[randrange(0, len(directions))]
         newX, newY = x + dx, y + dy 
         
         # Wrap if going off of the board
@@ -147,7 +150,7 @@ class GameLogic:
 
     def onJoin(self, pid : Pid) -> None:
         self.playerIDs[pid] = self.board.addObject(Player(), (0, 0))
-        self.updateQueue.append((Atom("player_join", {"id" : self.playerIDs[pid]})))
+        self.updateQueue.append((Atom("player_join"), {"id" : self.playerIDs[pid]}))
 
     def tryToPickUp(self, interactable : int, player : int) -> None:
         if not interactable:
@@ -155,8 +158,8 @@ class GameLogic:
         if self.board.isObjectOfType(interactable, Interactable):
             blockerObject = self.board.getObject(interactable)
             pickupType = blockerObject.onGet(self.board.getObject(player))
-            self.updateQueue.append((Atom(pickupType)), {"id" : interactable, 
-                                                         "playerID" : player})
+            self.updateQueue.append((Atom(pickupType), {"id" : interactable, 
+                                                         "playerID" : player}))
 
     def decrementPlayerTimers(self) -> None:
         players = self.board.getAllOfType(Player)
