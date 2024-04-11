@@ -8,6 +8,12 @@ from Player import Player
 from Interactable import Interactable
 
 class GameLogic:
+    POSITION_DICT = {
+        "up"    : ( 0,  1), 
+        "down"  : ( 0, -1),
+        "left"  : (-1,  0),
+        "right" : ( 1,  0)
+    }
     def __init__(self, board = Board()):
         self.board = board
         self.isRunning = True
@@ -27,6 +33,11 @@ class GameLogic:
     def updateModel(self) -> None:
         for msg in self.inbox:
             pid, command = msg 
+
+            match command:
+                case "close":
+                    self.onClose
+
 
             if command == Atom("close"):
                 self.onClose()
@@ -139,30 +150,33 @@ class GameLogic:
     ### STATE UPDATES ### 
 
     def playerDie(self, playerID : int) -> None:
-        self.updateQueue.append((Atom("player_die"), {"id" : playerID}))
+        info = {"id" : playerID}
+        self.queueMessage("player_die", info)
     
     def ghostDie(self, ghostID : int) -> None: 
-        self.updateQueue.append((Atom("ghost_die"), {"id" : ghostID}))
+        info = {"id" : ghostID}
+        self.queueMessage("ghost_die", info)
     
     def onClose(self) -> None:
         self.isRunning = False
-        self.updateQueue.append((Atom("quit"), dict()))
+        self.queueMessage("done", dict())
 
     def onJoin(self, pid : Pid) -> None:
         self.playerIDs[pid] = self.board.addObject(Player(), (0, 0))
-        self.updateQueue.append((Atom("player_join"), {"id" : self.playerIDs[pid]}))
+        info = {"id" : self.playerIDs[pid]}
+        self.queueMessage("player_join", info)
 
     def tryToPickUp(self, interactable : int, player : int) -> None:
         if not interactable:
             return 
         if self.board.isObjectOfType(interactable, Interactable):
             blockerObject = self.board.getObject(interactable)
-            pickupType = blockerObject.onGet(self.board.getObject(player))
-            self.updateQueue.append((Atom(pickupType), {"id" : interactable, 
-                                                         "playerID" : player}))
+            blockerObject.onGet(self.board.getObject(player))
+            info = {"id" : interactable, "playerID" : player}
+            self.queueMessage("remove_object", info)
 
     def decrementPlayerTimers(self) -> None:
-        players = self.board.getAllOfType(Player)
+        players : list = self.board.getAllOfType(Player)
         for playerID, player in players:
             isPreviouslyInvincible = player.isInvincible()
             isInvincible = player.decrementInvincibleTimer()
@@ -182,6 +196,9 @@ class GameLogic:
             self.updateModel()
             self.runLogic()
             self.sendUpdates() 
+
+    def queueMessage(self, command : str, info : dict):
+        self.updateQueue.append((Atom(command), info))
 
 
 GameLogic()
