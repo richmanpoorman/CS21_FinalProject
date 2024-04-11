@@ -182,7 +182,8 @@ class GameLogic:
             isInvincible = player.decrementInvincibleTimer()
             
             if isPreviouslyInvincible and not isInvincible:
-                self.updateQueue.append((Atom("player_vulnerable"), {"id" : playerID}))
+                info = {"id" : playerID}
+                self.queueMessage("player_vulnerable", info)
     
     ### SEND MESSAGES ###
 

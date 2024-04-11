@@ -1,5 +1,5 @@
 from GameObject import GameObject
-
+from pygame import Surface
 class Player(GameObject):
     UP, DOWN, LEFT, RIGHT = (0, 1), (0, -1), (-1, 0), (1, 0)
     INVINCIBLE_DURATION   = 10
@@ -22,3 +22,8 @@ class Player(GameObject):
     def decrementInvincibleTimer(self) -> bool:
         self.invincibleTimer -= 1
         return self.isInvincible()
+    
+    def getSurface(self) -> Surface | None:
+        surface = Surface((200, 200))
+        surface.fill((0, 200, 100))
+        return surface
