@@ -5,7 +5,7 @@ from pygame import Surface
 class PowerPellet(Interactable):
     def __init__(self):
         # TODO:: Replace the surface with the starting image
-        super().__init__(None)
+        super().__init__()
         
 
     def onGet(self, player : Player) -> str:
