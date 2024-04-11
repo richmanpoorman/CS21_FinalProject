@@ -8,8 +8,8 @@ from Player import Player
 from Interactable import Interactable
 
 class GameLogic:
-    def __init__(self):
-        self.board = Board()
+    def __init__(self, board = Board()):
+        self.board = board
         self.isRunning = True
         self.inbox, self.port = stdio_port_connection() 
         self.playerIDs = dict()
