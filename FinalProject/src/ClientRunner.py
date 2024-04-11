@@ -94,7 +94,7 @@ class ClientRunner:
 
     def run(self):
         self.receiveUpdates() 
-        self.display.updateDisplay()
+        self.display.receiveUpdate(self.board)
         self.sendInputs()
 
 

@@ -6,7 +6,7 @@ import random
 import numpy as np
 
 class Display:
-    def __init__(self,dimension: tuple[int, int] = (10, 12)):
+    def __init__(self,dimension: tuple[int, int] = (200, 200)):
         '''
             Name    : init
             Params  : (dimension) tuple[int, int] := optional parameter that has the 
@@ -14,7 +14,7 @@ class Display:
             Purpose : initalize specific class variables
             Return  : N/A
         '''
-        self.board = np.empty(dimension, dtype=GameObject)
+        self.board = Board()
         self.dim = dimension
         #(self.window) is the display surface that is shown on the screen 
         self.window = py.display.set_mode(self.dim)
@@ -23,20 +23,21 @@ class Display:
     def updateDisplay(self) -> None:
 
         '''
-            Name    : __updateDisplay
+            Name    : updateDisplay
             Params  : N/A
             Purpose : Update the display window with all the gameObjects in the board
             Return  : N/A
         '''
 
-        rows, cols = self.dim
+        rows, cols = self.board.size
 
         for r in range(rows):
             for c in range(cols):
-                obj = self.board[r][c]
+                obj = self.board.getAt((r, c))
+                # obj = self.board[r][c]
                 suf = obj.getSurface()
                 # MUST UPDATE WHAT SIZE EACH GAMEOBJECT SHOULD BE
-                self.window.blit(suf, (r * 10, c * 10))
+                self.window.blit(source = suf, dest=(r * 10, c * 10))
         
     
         py.display.update()
@@ -55,12 +56,12 @@ class Display:
                 if event.type == py.QUIT:
                     run = False
 
-            self.__updateDisplay()
+            self.updateDisplay()
         
 
     def receiveUpdate(self, newBoard: Board) -> None:
        self.Board = newBoard
-       self.__updateDisplay()
+       self.updateDisplay()
        
     
 
