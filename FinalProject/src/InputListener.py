@@ -1,7 +1,7 @@
 import pygame as py
-import os
-from erpy import stdio_port_connection # TODO: pip install erpy currently 
-                                       # doesn't work
+# import os
+# from erpy import stdio_port_connection # TODO: pip install erpy currently 
+#                                        # doesn't work
 
 class InputListener:
     def __init__(self):
@@ -9,23 +9,18 @@ class InputListener:
 
 
     def checkAndSendInput(self): # TODO: py.get()? or py.event.get()
+        command = ""
+        info = dict()
         for event in py.get():
-            inputValue = map()
-            if event == py.QUIT:
-                inputValue["QUIT"] = "QUIT" 
-            elif event == py.KEYDOWN:
-                inputValue["KEY"] = event.key
-            
-            self.sendInput(inputValue)
+            info = dict() 
+            match event:
+                case py.QUIT:
+                    command = "quit"
+                case py.KEYDOWN:
+                    command = "input"
+                    info["direction"] = self.__map_key_to_direction(event.key)
+        return command, info
 
-    
-    def sendInput(self, inputValue : map):
-        """Message format: {PID, command}"""
-        # TODO: Use the erlang channel to send the (string, value) map over
-        # TODO: Need testing if anyone is able to install erpy
-        _, port = stdio_port_connection()
-        port.send(self.__format_message(inputValue))
-        
     def __map_key_to_direction(self, key):
         """Map Pygame key events to direction strings."""
         match key:
@@ -39,13 +34,3 @@ class InputListener:
                 return 'right'
             case _:
                 return None  # Default case if no direction is matched
-
-    
-    def __format_message(self, inputValue: map):
-        """Format the movement message according to specified pattern."""
-        if "QUIT" in inputValue:
-            return "{" + os.getpid() + ", quit}"
-        elif "KEY" in inputValue:
-            return "{" + f"{os.getpid()}, {self.__map_key_to_direction(inputValue['KEY'])}" + "}"
-        return None
-        

@@ -32,25 +32,15 @@ class GameLogic:
     ### RECEIEVE MESSAGES ###
     def updateModel(self) -> None:
         for msg in self.inbox:
-            pid, command = msg 
+            pid, command, info = msg 
 
             match command:
                 case "close":
-                    self.onClose
-
-
-            if command == Atom("close"):
-                self.onClose()
-            elif command == Atom("player_join"):
-                self.onJoin(pid)
-            elif command == Atom("up"):
-                self.onPlayerMove(pid, Player.UP)
-            elif command == Atom("down"):
-                self.onPlayerMove(pid, Player.DOWN)
-            elif command == Atom("left"):
-                self.onPlayerMove(pid, Player.LEFT)
-            elif command == Atom("right"):
-                self.onPlayerMove(pid, Player.RIGHT)
+                    self.onClose()
+                case "input":
+                    self.onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]])
+                case "player_join":
+                    self.onJoin(pid)
             
     def onPlayerMove(self, pid : Pid, direction : tuple) -> None:
         player = self.playerIDs[pid]
@@ -67,7 +57,7 @@ class GameLogic:
             if not blocker:
                 return
 
-            playerObject = self.board.getObject(player)
+            playerObject : Player = self.board.getObject(player)
             isInvincible = playerObject.isInvincible()
             
             if self.board.isObjectOfType(blocker, Ghost):
@@ -76,7 +66,7 @@ class GameLogic:
                 else:
                     self.playerDie(player)
             elif self.board.isObjectOfType(blocker, Player):
-                blockedBy = self.board.getObject(blocker)
+                blockedBy : Player = self.board.getObject(blocker)
                 if isInvincible and not blockedBy.isInvincible():
                     self.playerDie(blocker)
     
@@ -119,7 +109,8 @@ class GameLogic:
             blockedBy = self.board.getObject(blocker) 
 
             if self.board.isObjectOfType(blocker, Player):
-                if blockedBy.isInvincible():
+                player : Player = blockedBy
+                if player.isInvincible():
                     self.ghostDie(ghostID)
                 else:
                     self.playerDie(blocker)
