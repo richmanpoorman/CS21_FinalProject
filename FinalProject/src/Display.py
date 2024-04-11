@@ -14,16 +14,13 @@ class Display:
             Purpose : initalize specific class variables
             Return  : N/A
         '''
-
-        # NEED TO CHANGE WHEN BOARD IS TESTED
-        # self.board = Board(dimension)
         self.board = np.empty(dimension, dtype=GameObject)
         self.dim = dimension
         #(self.window) is the display surface that is shown on the screen 
         self.window = py.display.set_mode(self.dim)
         self.window.fill((0,0,0)) # initalize the screen to be blank
 
-    def __updateDisplay(self) -> None:
+    def updateDisplay(self) -> None:
 
         '''
             Name    : __updateDisplay
@@ -36,8 +33,6 @@ class Display:
 
         for r in range(rows):
             for c in range(cols):
-                # NEED TO CHANGE WHEN BOARD IS TESTED
-                # obj = self.board.getAt((r, c))
                 obj = self.board[r][c]
                 suf = obj.getSurface()
                 # MUST UPDATE WHAT SIZE EACH GAMEOBJECT SHOULD BE
@@ -63,8 +58,10 @@ class Display:
             self.__updateDisplay()
         
 
-    def receiveUpdate(self, update : dict) -> None:
-        pass 
+    def receiveUpdate(self, newBoard: Board) -> None:
+       self.Board = newBoard
+       self.__updateDisplay()
+       
     
 
 
