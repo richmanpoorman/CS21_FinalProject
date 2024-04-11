@@ -4,6 +4,7 @@ import sys
 from GameObject import GameObject # just for testing
 import random
 import numpy as np
+BOARD_SIZE = (10, 11)
 
 class Display:
     def __init__(self,dimension: tuple[int, int] = (200, 200)):
@@ -14,7 +15,8 @@ class Display:
             Purpose : initalize specific class variables
             Return  : N/A
         '''
-        self.board = Board()
+        
+        self.board = np.empty(BOARD_SIZE, dtype=GameObject)
         self.dim = dimension
         #(self.window) is the display surface that is shown on the screen 
         self.window = py.display.set_mode(self.dim)
@@ -59,7 +61,7 @@ class Display:
             self.updateDisplay()
         
 
-    def receiveUpdate(self, newBoard: Board) -> None:
+    def receiveUpdate(self, newBoard) -> None:
        self.Board = newBoard
        self.updateDisplay()
        
@@ -76,15 +78,13 @@ class Display:
 py.init()
 
 # Create a Display object
-ROWS = 500
-COLS = 500
-dis = Display((COLS, ROWS))
+dis = Display()
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
-
+ROWS, COLS = dis.size
 
 # Create GameObjects and add them to the display
 for c in range(COLS):
