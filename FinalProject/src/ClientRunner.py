@@ -12,23 +12,41 @@ from Wall import Wall
 
 from erpy import stdio_port_connection
 from term import Atom
+import pygame as py
+
+from threading import Lock, Thread
+
+from TestTools import outputLn, outputInit
 
 class ClientRunner:
     def __init__(self):
+
+        ## TODO:: TESTING INITIALIZATION
+        outputInit()
+
+        
+        py.init()
         self.display       = Display() 
         self.inputListener = InputListener() 
         self.board         = Board()
 
         self.serverIdMap   = dict() 
         self.inbox, self.port = stdio_port_connection()
+        
+        self.messageLock = Lock() 
+        self.messages = []
+
+        self.isRunning = True
         self.initialize()
         self.run() 
 
     def initialize(self):
+        self.inboxThread = Thread(target = self.messageListener)
         self.sendMessage("player_join", dict())
 
     def sendInputs(self):
         input, data = self.inputListener.checkAndSendInput()
+
         if input:
             self.sendMessage(input, data)
 
@@ -40,11 +58,19 @@ class ClientRunner:
                 self.port.send((Atom("player_join"), info))
             case "quit":
                 self.port.send((Atom("quit"), info))
+                self.isRunning = False
+
+    def messageListener(self) -> None:
+        for msg in self.inbox:
+            _, command, data = msg
+            with self.messageLock:
+                self.messages.append((command, data))
 
     def receiveUpdates(self) -> None:
-        for msg in self.inbox():
-            _, command, data = msg
-            self.receiveMessage(command, data)
+        with self.messageLock:
+            for msg in self.messages:
+                command, data = msg
+                self.receiveMessage(command, data)
 
     def receiveMessage(self, command : str, data : dict) -> None:
         match command:
@@ -81,7 +107,7 @@ class ClientRunner:
                 clientId = self.__clientID(data["id"])
                 self.board.removeObject(clientId)
             case "done":
-                pass 
+                self.isRunning = False
 
     def __addObject(self, gameObject : GameObject, serverId : int, position : tuple) -> None:
         clientID = self.board.addObject(gameObject, position)
@@ -94,9 +120,11 @@ class ClientRunner:
         self.display.receiveUpdate(self.board.getBoard())
 
     def run(self):
-        self.receiveUpdates() 
-        self.display.receiveUpdate(self.board)
-        self.sendInputs()
+        while self.isRunning:
+            self.receiveUpdates() 
+            self.__updateBoard()
+            self.sendInputs()
 
+            
 
 ClientRunner()

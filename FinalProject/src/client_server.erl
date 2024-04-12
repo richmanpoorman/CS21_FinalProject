@@ -3,13 +3,15 @@
 -record(server_state, {port, players}).
 -record(user_state  , {port, server}).
 
--export([server_start/1, client_start/3]).
+-export([server_start/1, client_start/2]).
 
 %%% SERVER SIDE %%%
-server_start(SpawnString) -> 
-    Port = open_port({spawn, SpawnString}, [binary, {packet,4}, use_stdio]),
+server_start(ServerName) -> 
+    PythonSpawn = "python -u ../src/GameLogic.py",
+    Port = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
     InitialState = #server_state{port = Port, players = []},
-    server_loop(InitialState). 
+    Pid = spawn(fun () -> server_loop(InitialState) end),
+    register(ServerName, Pid). 
 
 broadcast(Command, Data, State) -> 
     SendMsg = fun (Player) -> Player ! {self(), Command, Data} end,
@@ -54,11 +56,13 @@ server_receive(Pid, Command, Msg, State) ->
     end.
 
 %%% CLIENT SIDE %%%
-client_start(SpawnString, ServerNode, ServerRoom) -> 
-    Port = open_port({spawn, SpawnString}, [binary, {packet,4}, use_stdio]),
+client_start(ServerNode, ServerRoom) -> 
+    PythonSpawn = "python -u ../src/ClientRunner.py",
+    Port = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
     Server = {ServerRoom, ServerNode}, 
     InitialState = #user_state{port = Port, server = Server},
-    client_loop(InitialState).
+    Pid = spawn(fun () -> client_loop(InitialState) end), 
+    register(client, Pid).
 
 post(Command, Data, State) -> 
     Server = State#user_state.server,

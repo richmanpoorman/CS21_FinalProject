@@ -3,22 +3,28 @@ import pygame as py
 # from erpy import stdio_port_connection # TODO: pip install erpy currently 
 #                                        # doesn't work
 
+from TestTools import outputLn # TODO::TESTING FUNCTION
+
 class InputListener:
     def __init__(self):
         pass 
 
 
-    def checkAndSendInput(self): # TODO: py.get()? or py.event.get()
+    def checkAndSendInput(self): 
         command = ""
         info = dict()
         for event in py.event.get():
             info = dict() 
-            match event:
+            match event.type:
                 case py.QUIT:
                     command = "quit"
                 case py.KEYDOWN:
                     command = "input"
                     info["direction"] = self.__map_key_to_direction(event.key)
+
+
+            # TODO:: Check that the event is proper
+            
         return command, info
 
     def __map_key_to_direction(self, key):
