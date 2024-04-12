@@ -1,9 +1,8 @@
--module(client_server).
+-module(port_manager).
 
 -record(server_state, {port, players}).
 -record(user_state  , {port, server}).
 
--export([server_start/1, client_start/3]).
 
 %%% SERVER SIDE %%%
 server_start(SpawnString) -> 
@@ -11,15 +10,15 @@ server_start(SpawnString) ->
     InitialState = #server_state{port = Port, players = []},
     server_loop(InitialState). 
 
-broadcast(Command, Data, State) -> 
-    SendMsg = fun (Player) -> Player ! {self(), Command, Data} end,
-    Players = State#server_state.players,
-    lists:foreach(SendMsg, Players),
+broadcast({Command, Data}, State) -> 
+    SendMsg = fun ({Command, Data}, Player) -> 
+        Player ! {self(), Command, Data},
+    lists:foreach(SendMsg, State#server_state.players),
     State. 
 
 server_loop(State) -> 
     receive
-        {__Port, {data, EncodedData}} -> 
+        {Port, {data, EncodedData}} -> 
             {Command, Data} = binary_to_term(EncodedData),
             server_send(Command, Data, State);
         {Pid, Command, Msg} -> 
@@ -31,8 +30,8 @@ server_loop(State) ->
 server_send(Command, Data, State) ->
     NewState = broadcast(done, Data, State),
     case Command of 
-        done -> ok;
-        _    -> server_loop(NewState)
+        done -> ok. 
+        _    -> serverLoop(NewState)
     end.
 
 server_receive(Pid, Command, Msg, State) -> 
@@ -41,16 +40,16 @@ server_receive(Pid, Command, Msg, State) ->
     case Command of 
         player_join -> 
             Players    = State#server_state.players,
-            NewPlayers = [Pid | Players],
-            NewState = State#server_state{players = NewPlayers},
+            NewPlayers = [Pid | Players]
+            #server_state{port = Port, players = NewPlayers},
             server_loop(NewState);
         quit -> 
             Players    = State#server_state.players,
-            NewPlayers = lists:delete(Pid, Players),
-            NewState = State#server_state{players = NewPlayers},
+            NewPlayers = lists:delete(Pid, Players)
+            #server_state{port = Port, players = NewPlayers},
             server_loop(NewState);
         _ ->
-            server_loop(State)
+            server_loop(NewState).
     end.
 
 %%% CLIENT SIDE %%%
@@ -66,10 +65,11 @@ post(Command, Data, State) ->
     State. 
 
 client_loop(State) -> 
+    
     receive
-        {__Port, {data, EncodedData}} -> 
+        {Port, {data, EncodedData}} -> 
             {Command, Data} = binary_to_term(EncodedData),
-            client_send(Command, Data, State);
+            client_send(Command, Data, State)
         {Pid, Command, Msg} -> 
             client_receive(Pid, Command, Msg, State)
     end. 

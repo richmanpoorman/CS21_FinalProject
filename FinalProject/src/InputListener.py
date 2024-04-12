@@ -11,7 +11,7 @@ class InputListener:
     def checkAndSendInput(self): # TODO: py.get()? or py.event.get()
         command = ""
         info = dict()
-        for event in py.get():
+        for event in py.event.get():
             info = dict() 
             match event:
                 case py.QUIT:

@@ -11,7 +11,7 @@ from Player import Player
 from Wall import Wall 
 
 from erpy import stdio_port_connection
-from Term import Atom
+from term import Atom
 
 class ClientRunner:
     def __init__(self):
@@ -37,12 +37,13 @@ class ClientRunner:
             case "input":
                 self.port.send((Atom("input"), info))
             case "player_join":
-                self.port.send((Atom("player_join", info)))
+                self.port.send((Atom("player_join"), info))
             case "quit":
                 self.port.send((Atom("quit"), info))
 
     def receiveUpdates(self) -> None:
-        for _, command, data in self.inbox():
+        for msg in self.inbox():
+            _, command, data = msg
             self.receiveMessage(command, data)
 
     def receiveMessage(self, command : str, data : dict) -> None:
@@ -90,7 +91,7 @@ class ClientRunner:
         return self.serverIdMap[serverId]
 
     def __updateBoard(self):
-        self.display.update(self.board.getBoard())
+        self.display.receiveUpdate(self.board.getBoard())
 
     def run(self):
         self.receiveUpdates() 
