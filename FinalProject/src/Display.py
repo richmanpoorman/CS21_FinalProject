@@ -2,12 +2,12 @@ from Board import Board
 import pygame as py
 import sys
 from GameObject import GameObject # just for testing
-import random
+import random as rd
 import numpy as np
 BOARD_SIZE = (10, 11)
-
+WINDOW_DIM = (500,500)
 class Display:
-    def __init__(self,dimension: tuple[int, int] = (200, 200)):
+    def __init__(self,dimension: tuple[int, int] = WINDOW_DIM):
         '''
             Name    : init
             Params  : (dimension) tuple[int, int] := optional parameter that has the 
@@ -17,6 +17,7 @@ class Display:
         '''
         
         self.board = np.empty(BOARD_SIZE, dtype=GameObject)
+        self.size = BOARD_SIZE
         self.dim = dimension
         #(self.window) is the display surface that is shown on the screen 
         self.window = py.display.set_mode(self.dim)
@@ -31,15 +32,23 @@ class Display:
             Return  : N/A
         '''
 
-        rows, cols = self.board.size
+        rows, cols = BOARD_SIZE
+        dim_row, dim_col = WINDOW_DIM
+        #Get the size of any surface in each cell of the display window
+        cell_width = (dim_col // cols) * 2
+        cell_height = (dim_row // rows) * 2
 
         for r in range(rows):
             for c in range(cols):
-                obj = self.board.getAt((r, c))
-                # obj = self.board[r][c]
+                obj = self.board[r][c]
                 suf = obj.getSurface()
-                # MUST UPDATE WHAT SIZE EACH GAMEOBJECT SHOULD BE
-                self.window.blit(source = suf, dest=(r * 10, c * 10))
+                #scale the sufarce gotten from the board
+                newSuf = py.transform.scale(suf, (cell_width, cell_height))
+                # calculate the new postion of the surface in the bigger display window
+                x = c * cell_width
+                y = r * cell_height
+                # Draw the upscaled surfaces onto the screen window
+                self.window.blit(newSuf, (x , y))
         
     
         py.display.update()
@@ -47,7 +56,7 @@ class Display:
         
     def display_window(self):
         '''
-            Name    : display_window
+            Name    : display_window (for testing only)
             Params  : N/A
             Purpose : To display the self.window to the screen 
             Return  : N/A
@@ -85,15 +94,18 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 ROWS, COLS = dis.size
-
+image_path = "/Users/timi/Downloads/pac_man.jpg"
 # Create GameObjects and add them to the display
-for c in range(COLS):
-    for r in range(ROWS):
-        surf = py.Surface((10, 10))
-        surf.fill(GREEN)
-        if (c % 2) == 0:
-            surf.fill(RED)
-        dis.board[c][r] = GameObject(surf)
+for r in range(ROWS):
+    for c in range(COLS):
+        if r == 0 and c == 0:
+            surf = py.image.load(image_path)
+        else:
+            surf = py.Surface((rd.randint(10, 50),rd.randint(36, 90)))
+            surf.fill(GREEN)
+        # if (r % 2) == 0:
+        #     surf.fill(RED)
+        dis.board[r][c] = GameObject(surf)
 
 dis.display_window()
 
