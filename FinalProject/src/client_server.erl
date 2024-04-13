@@ -130,7 +130,7 @@ client_receive(Pid, Command, Msg, State) ->
 
 %%% MESSAGE PASSING HELPERS %%%
 send_port_message(Pid, Command, Msg, Port) -> 
-    Port ! {Pid, {command, term_to_binary({Pid, Command, Msg}) }},
+    Port ! {self(), {command, term_to_binary({Pid, Command, Msg}) }},
     ok.
 
 
