@@ -37,8 +37,10 @@ class ClientRunner:
         self.isRunning = True
         self.initialize()
         self.run() 
+        outputLn("Client Successfully quit")
 
     def initialize(self):
+        outputLn("Client Runninng")
         self.inboxThread = Thread(target = self.messageListener)
         self.inboxThread.start()
         self.sendMessage("player_join", dict())
@@ -56,8 +58,11 @@ class ClientRunner:
             case "player_join":
                 self.port.send((Atom("player_join"), info))
             case "quit":
+                outputLn("Client Quitting")
                 self.port.send((Atom("quit"), info))
                 self.isRunning = False
+            case _:
+                outputLn("Unknown Message Sent")
 
     def messageListener(self) -> None:
         for msg in self.inbox:
@@ -74,6 +79,7 @@ class ClientRunner:
                 command, data = msg
                 outputLn("CLIENT RECEIVES: " + command)
                 self.receiveMessage(command, data)
+            self.messages = []
 
     def receiveMessage(self, command : str, data : dict) -> None:
         match command:
@@ -131,3 +137,4 @@ class ClientRunner:
             
 py.init()
 ClientRunner()
+py.quit()

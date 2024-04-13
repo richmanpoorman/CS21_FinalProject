@@ -11,7 +11,7 @@ server_start(ServerName) ->
     register(ServerName, spawn(fun () -> server_initialize(PythonSpawn) end)).
 
 broadcast(Command, Data, State) -> 
-    SendMsg = fun (Player) -> Player ! {self(), Command, Data} end,
+    SendMsg = fun (Player) -> Player ! {from_server, {self(), Command, Data}} end,
     Players = State#server_state.players,
     lists:foreach(SendMsg, Players),
     State. 
@@ -25,9 +25,11 @@ server_loop(State) ->
     receive
         {__Port, {data, EncodedData}} -> 
             {Command, Data} = binary_to_term(EncodedData),
-            server_send(Command, Data, State);
-        {Pid, Command, Msg} -> 
-            server_receive(Pid, Command, Msg, State);
+            NewState = server_send(Command, Data, State),
+            server_loop(NewState);
+        {from_client, {Pid, Command, Msg}} -> 
+            NewState = server_receive(Pid, Command, Msg, State),
+            server_loop(NewState);
         done -> 
             Port = State#server_state.port,
             send_port_message(self(), done, [], Port),
@@ -36,19 +38,20 @@ server_loop(State) ->
             Port ! {self(), close};
         {py_port, Msg} ->
             Port = State#server_state.port, 
-            send_port_message(self(), py_port, Msg, Port);
+            send_port_message(self(), py_port, Msg, Port),
+            server_loop(State);
         get_port -> 
-            send_base(State#server_state.port, State);
-        _ -> 
-            send_base('message_error', State),
-            server_loop(state)
+            send_base(State#server_state.port, State),
+            server_loop(State);
+        Msg -> 
+            NewState = server_receive(self(), 'bad_message', Msg, State),
+            server_loop(NewState)
     end.
 
     %%% SERVER HELPERS %%%
 
 server_send(Command, Data, State) ->
-    NewState = broadcast(Command, Data, State),
-    server_loop(NewState).
+    broadcast(Command, Data, State).
 
 server_receive(Pid, Command, Msg, State) -> 
     Port = State#server_state.port,
@@ -57,16 +60,13 @@ server_receive(Pid, Command, Msg, State) ->
         player_join -> 
             Players    = State#server_state.players,
             NewPlayers = [Pid | Players],
-            NewState = State#server_state{players = NewPlayers},
-            server_loop(NewState);
+            State#server_state{players = NewPlayers};
         quit -> 
             Players    = State#server_state.players,
             NewPlayers = lists:delete(Pid, Players),
-            NewState = State#server_state{players = NewPlayers},
-            server_loop(NewState);
+            State#server_state{players = NewPlayers};
         _ ->
-            io:format("Command gotten: ~w", [Command]),
-            server_loop(State)
+            State
     end.
 
 server_done(ServerName) -> 
@@ -87,15 +87,17 @@ server_get_port(ServerName) ->
 %%% CLIENT SIDE %%%
 client_start(ServerNode, ServerRoom) -> 
     PythonSpawn = "python -u ../src/ClientRunner.py",
+    spawn(fun () -> client_initalize(PythonSpawn, ServerNode, ServerRoom) end).
+
+client_initalize(PythonSpawn, ServerNode, ServerRoom) ->
     Port = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
     Server = {ServerRoom, ServerNode}, 
     InitialState = #user_state{port = Port, server = Server},
     client_loop(InitialState).
-    
 
 post(Command, Data, State) -> 
     Server = State#user_state.server,
-    Server ! {self(), Command, Data},
+    Server ! {from_client, {self(), Command, Data}},
     State. 
 
 client_loop(State) -> 
@@ -103,7 +105,7 @@ client_loop(State) ->
         {__Port, {data, EncodedData}} -> 
             {Command, Data} = binary_to_term(EncodedData),
             client_send(Command, Data, State);
-        {Pid, Command, Msg} -> 
+        {from_server, {Pid, Command, Msg}} -> 
             client_receive(Pid, Command, Msg, State)
     end. 
 

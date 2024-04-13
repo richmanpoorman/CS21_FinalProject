@@ -29,10 +29,6 @@ class GameLogic:
         self.playerIDs = dict()
         self.updateQueue = []
         
-        # self.messageLock = Lock() 
-        # self.messages    = []
-        # self.listener    = Thread(target = self.messageListener)
-        # self.listener.start()
         self.run()
 
     ### SEND BOARD INFORMATION TO ALL USERS ### 
@@ -44,23 +40,28 @@ class GameLogic:
 
     def updateModel(self) -> None:
         for msg in self.inbox:
-            pid, command, info = msg 
-            outputLn("SERVER RECEIVES: " + command)
-            match command:
-                case "close":
-                    self.onClose()
-                case "input":
-                    self.onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]])
-                case "player_join":
-                    self.onJoin(pid)
-                case "done":
-                    outputLn("Server Done")
-                    self.isRunning = False
-                case "py_port":
-                    outputLn(command + " " + info)
-                    self.port.send("receieved: " + command)
-                case _: 
-                    outputLn("No match was found")
+            match msg:
+                case (pid, command, info):
+                    self.parseMessage(pid, command, info)
+                case _:
+                    outputLn("Unknown message received")
+    
+    def parseMessage(self, pid, command, info):
+        outputLn("SERVER RECEIVES: " + str(command))
+        match command:
+            case "close":
+                self.onClose()
+            case "input":
+                self.onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]])
+            case "player_join":
+                self.onJoin(pid)
+            case "done":
+                outputLn("Server Done")
+                self.isRunning = False
+            case "py_port":
+                outputLn(command + " " + info)
+            case _: 
+                outputLn("No match was found")
             
     def onPlayerMove(self, pid : Pid, direction : tuple) -> None:
         player = self.playerIDs[pid]

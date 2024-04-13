@@ -1,3 +1,6 @@
 Server Start
-SERVER RECEIVES: done
-Server Done
+SERVER RECEIVES: py_port
+py_port hi
+SERVER RECEIVES: py_port
+py_port this is a message
+
