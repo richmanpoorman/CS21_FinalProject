@@ -1,17 +1,14 @@
 -module(client_server).
 
--record(server_state, {port, players}).
+-record(server_state, {port, players, baseThread}).
 -record(user_state  , {port, server}).
 
--export([server_start/1, client_start/2]).
+-export([server_start/1, server_done/1, server_send_port/2, server_get_port/1, client_start/2]).
 
 %%% SERVER SIDE %%%
 server_start(ServerName) -> 
     PythonSpawn = "python -u ../src/GameLogic.py",
-    Port = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
-    InitialState = #server_state{port = Port, players = []},
-    Pid = spawn(fun () -> server_loop(InitialState) end),
-    register(ServerName, Pid). 
+    register(ServerName, spawn(fun () -> server_initialize(PythonSpawn) end)).
 
 broadcast(Command, Data, State) -> 
     SendMsg = fun (Player) -> Player ! {self(), Command, Data} end,
@@ -19,23 +16,39 @@ broadcast(Command, Data, State) ->
     lists:foreach(SendMsg, Players),
     State. 
 
+server_initialize(PythonSpawn) -> 
+    Port = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
+    InitialState = #server_state{port = Port, players = [], baseThread = self()},
+    server_loop(InitialState).
+
 server_loop(State) -> 
     receive
         {__Port, {data, EncodedData}} -> 
             {Command, Data} = binary_to_term(EncodedData),
             server_send(Command, Data, State);
         {Pid, Command, Msg} -> 
-            server_receive(Pid, Command, Msg, State)
+            server_receive(Pid, Command, Msg, State);
+        done -> 
+            Port = State#server_state.port,
+            send_port_message(self(), done, [], Port),
+            broadcast(done, [], State),
+            send_base(done, State),
+            Port ! {self(), close};
+        {py_port, Msg} ->
+            Port = State#server_state.port, 
+            send_port_message(self(), py_port, Msg, Port);
+        get_port -> 
+            send_base(State#server_state.port, State);
+        _ -> 
+            send_base('message_error', State),
+            server_loop(state)
     end.
 
     %%% SERVER HELPERS %%%
 
 server_send(Command, Data, State) ->
-    NewState = broadcast(done, Data, State),
-    case Command of 
-        done -> ok;
-        _    -> server_loop(NewState)
-    end.
+    NewState = broadcast(Command, Data, State),
+    server_loop(NewState).
 
 server_receive(Pid, Command, Msg, State) -> 
     Port = State#server_state.port,
@@ -52,8 +65,24 @@ server_receive(Pid, Command, Msg, State) ->
             NewState = State#server_state{players = NewPlayers},
             server_loop(NewState);
         _ ->
+            io:format("Command gotten: ~w", [Command]),
             server_loop(State)
     end.
+
+server_done(ServerName) -> 
+    whereis(ServerName) ! done. 
+
+server_send_port(ServerName, Msg) ->
+    whereis(ServerName) ! {py_port, Msg}.
+
+send_base(Msg, State) -> 
+    State#server_state.baseThread ! Msg.
+
+server_get_port(ServerName) -> 
+    whereis(ServerName) ! get_port,
+    receive 
+        Msg -> Msg
+    end. 
 
 %%% CLIENT SIDE %%%
 client_start(ServerNode, ServerRoom) -> 
@@ -61,8 +90,8 @@ client_start(ServerNode, ServerRoom) ->
     Port = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
     Server = {ServerRoom, ServerNode}, 
     InitialState = #user_state{port = Port, server = Server},
-    Pid = spawn(fun () -> client_loop(InitialState) end), 
-    register(client, Pid).
+    client_loop(InitialState).
+    
 
 post(Command, Data, State) -> 
     Server = State#user_state.server,
@@ -98,5 +127,5 @@ client_receive(Pid, Command, Msg, State) ->
 
 %%% MESSAGE PASSING HELPERS %%%
 send_port_message(Pid, Command, Msg, Port) -> 
-    Port ! term_to_binary({Pid, Command, Msg}),
+    Port ! {Pid, {command, term_to_binary({Pid, Command, Msg}) }},
     ok.

@@ -1,11 +1,11 @@
-from pygame import Surface 
-
+import pygame
 class GameObject:
-    def __init__(self, surface : Surface | None):
-        self.setSurface(surface)
+    def __init__(self, surface : pygame.Surface | None = None):
+        if surface:
+            self.setSurface(surface)
 
-    def getSurface(self) -> Surface | None: 
+    def getSurface(self) -> pygame.Surface: 
         return self.surface
 
-    def setSurface(self, surface : Surface | None) -> None:
+    def setSurface(self, surface : pygame.Surface) -> None:
         self.surface = surface

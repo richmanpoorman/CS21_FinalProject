@@ -22,10 +22,8 @@ class ClientRunner:
     def __init__(self):
 
         ## TODO:: TESTING INITIALIZATION
-        outputInit()
-
+        # outputInit()
         
-        py.init()
         self.display       = Display() 
         self.inputListener = InputListener() 
         self.board         = Board()
@@ -42,6 +40,7 @@ class ClientRunner:
 
     def initialize(self):
         self.inboxThread = Thread(target = self.messageListener)
+        self.inboxThread.start()
         self.sendMessage("player_join", dict())
 
     def sendInputs(self):
@@ -64,12 +63,16 @@ class ClientRunner:
         for msg in self.inbox:
             _, command, data = msg
             with self.messageLock:
+                outputLn(command)
                 self.messages.append((command, data))
+                if command == "quit":
+                    return
 
     def receiveUpdates(self) -> None:
         with self.messageLock:
             for msg in self.messages:
                 command, data = msg
+                outputLn("CLIENT RECEIVES: " + command)
                 self.receiveMessage(command, data)
 
     def receiveMessage(self, command : str, data : dict) -> None:
@@ -126,5 +129,5 @@ class ClientRunner:
             self.sendInputs()
 
             
-
+py.init()
 ClientRunner()

@@ -14,4 +14,4 @@ server: client_server.beam
 
 client: client_server.beam 
 	@echo "client_server:client_start('$(SNAME)@$(HOST)', $(ROOM))." \
-		| erl -sname $(SNAME) -setcookie $(COOKIE)
+		| erl -setcookie $(COOKIE)

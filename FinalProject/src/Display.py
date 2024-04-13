@@ -1,8 +1,6 @@
-from Board import Board 
+
 import pygame as py
-import sys
-from GameObject import GameObject # just for testing
-import random as rd
+from GameObject import GameObject
 import numpy as np
 BOARD_SIZE = (10, 11)
 WINDOW_DIM = (500,500)

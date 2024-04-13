@@ -7,6 +7,10 @@ from Ghost import Ghost
 from Player import Player
 from Interactable import Interactable
 
+from threading import Thread, Lock
+
+## TESTING FUNCTIONS
+from TestTools import outputInit, outputLn
 class GameLogic:
     POSITION_DICT = {
         "up"    : ( 0,  1), 
@@ -14,12 +18,21 @@ class GameLogic:
         "left"  : (-1,  0),
         "right" : ( 1,  0)
     }
+
     def __init__(self, board = Board()):
+        ## TESTING 
+        outputInit()
+        outputLn("Server Start")
         self.board = board
         self.isRunning = True
         self.inbox, self.port = stdio_port_connection() 
         self.playerIDs = dict()
         self.updateQueue = []
+        
+        # self.messageLock = Lock() 
+        # self.messages    = []
+        # self.listener    = Thread(target = self.messageListener)
+        # self.listener.start()
         self.run()
 
     ### SEND BOARD INFORMATION TO ALL USERS ### 
@@ -29,11 +42,10 @@ class GameLogic:
     def sendFullBoardState(self):
         pass 
 
-    ### RECEIEVE MESSAGES ###
     def updateModel(self) -> None:
         for msg in self.inbox:
             pid, command, info = msg 
-
+            outputLn("SERVER RECEIVES: " + command)
             match command:
                 case "close":
                     self.onClose()
@@ -41,6 +53,14 @@ class GameLogic:
                     self.onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]])
                 case "player_join":
                     self.onJoin(pid)
+                case "done":
+                    outputLn("Server Done")
+                    self.isRunning = False
+                case "py_port":
+                    outputLn(command + " " + info)
+                    self.port.send("receieved: " + command)
+                case _: 
+                    outputLn("No match was found")
             
     def onPlayerMove(self, pid : Pid, direction : tuple) -> None:
         player = self.playerIDs[pid]
