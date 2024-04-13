@@ -28,11 +28,11 @@ server_loop(State) ->
             NewState = server_send(Command, Data, State),
             server_loop(NewState);
         {from_client, {Pid, Command, Msg}} -> 
-            % NewState = server_receive(Pid, Command, Msg, State),
-            % server_loop(NewState);
-            Port = State#server_state.port,
-            send_port_message(Pid, Command, Msg, Port),
-            server_loop(State);
+            NewState = server_receive(Pid, Command, Msg, State),
+            server_loop(NewState);
+            % Port = State#server_state.port,
+            % send_port_message(Pid, Command, Msg, Port),
+            % server_loop(State);
         done -> 
             Port = State#server_state.port,
             send_port_message(self(), done, [], Port),

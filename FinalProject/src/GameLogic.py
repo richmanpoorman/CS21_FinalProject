@@ -213,14 +213,9 @@ class GameLogic:
         # TODO:: Self.inbox is ending unexpectedly when sent message
         for msg in self.inbox:
             outputLn("in updateModel")
-            match msg:
-                case (pid, command, info):
-                    outputLn(str(command) + " : " + str(info))
-                case _:
-                    outputLn("other form")
-            # self.updateModel(msg)
-            # self.runLogic()
-            # self.sendUpdates() 
+            self.updateModel(msg)
+            self.runLogic()
+            self.sendUpdates() 
             # if not self.isRunning:
             #     return
         outputLn("Finished Running")
