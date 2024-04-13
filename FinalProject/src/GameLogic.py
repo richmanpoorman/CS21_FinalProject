@@ -38,23 +38,26 @@ class GameLogic:
     def sendFullBoardState(self):
         pass 
 
-    def updateModel(self) -> None:
-        for msg in self.inbox:
-            match msg:
-                case (pid, command, info):
-                    self.parseMessage(pid, command, info)
-                case _:
-                    outputLn("Unknown message received")
+    def updateModel(self, msg) -> None:  
+        outputLn("SERVER RECEIEVED SOME MESSAGE")
+        match msg:
+            case (pid, command, info):
+                self.parseMessage(pid, command, info)
+            case _:
+                outputLn("Unknown message received")
     
     def parseMessage(self, pid, command, info):
-        outputLn("SERVER RECEIVES: " + str(command))
+        outputLn("SERVER RECEIVES: " + str(command) + str(info))
         match command:
             case "close":
-                self.onClose()
+                # self.onClose()
+                outputLn("Closing")
             case "input":
-                self.onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]])
+                # self.onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]])
+                outputLn("input of: " + str(info))
             case "player_join":
-                self.onJoin(pid)
+                # self.onJoin(pid)
+                outputLn("player join of: " + str(info))
             case "done":
                 outputLn("Server Done")
                 self.isRunning = False
@@ -205,10 +208,22 @@ class GameLogic:
         self.updateQueue = []
 
     def run(self) -> None:
-        while self.isRunning: 
-            self.updateModel()
-            self.runLogic()
-            self.sendUpdates() 
+        # while self.isRunning:
+        outputLn("at top of running loop")
+        # TODO:: Self.inbox is ending unexpectedly when sent message
+        for msg in self.inbox:
+            outputLn("in updateModel")
+            match msg:
+                case (pid, command, info):
+                    outputLn(str(command) + " : " + str(info))
+                case _:
+                    outputLn("other form")
+            # self.updateModel(msg)
+            # self.runLogic()
+            # self.sendUpdates() 
+            # if not self.isRunning:
+            #     return
+        outputLn("Finished Running")
 
     def queueMessage(self, command : str, info : dict):
         self.updateQueue.append((Atom(command), info))

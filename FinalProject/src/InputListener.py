@@ -14,13 +14,16 @@ class InputListener:
         command = ""
         info = dict()
         for event in py.event.get():
-            info = dict() 
             match event.type:
                 case py.QUIT:
+                    info = dict() 
                     command = "quit"
                 case py.KEYDOWN:
+                    info = dict() 
                     command = "input"
                     info["direction"] = self.__map_key_to_direction(event.key)
+                case _:
+                    pass
 
 
             # TODO:: Check that the event is proper
@@ -37,6 +40,14 @@ class InputListener:
             case py.K_LEFT:
                 return 'left'
             case py.K_RIGHT:
+                return 'right'
+            case py.K_w:
+                return 'up'
+            case py.K_s:
+                return 'down'
+            case py.K_a:
+                return 'left'
+            case py.K_d:
                 return 'right'
             case _:
                 return None  # Default case if no direction is matched

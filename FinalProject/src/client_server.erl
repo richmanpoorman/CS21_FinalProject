@@ -3,7 +3,7 @@
 -record(server_state, {port, players, baseThread}).
 -record(user_state  , {port, server}).
 
--export([server_start/1, server_done/1, server_send_port/2, server_get_port/1, client_start/2]).
+-export([server_start/1, server_done/1, server_send_port/2, server_get_port/1, client_start/2, receive_base/0]).
 
 %%% SERVER SIDE %%%
 server_start(ServerName) -> 
@@ -28,8 +28,11 @@ server_loop(State) ->
             NewState = server_send(Command, Data, State),
             server_loop(NewState);
         {from_client, {Pid, Command, Msg}} -> 
-            NewState = server_receive(Pid, Command, Msg, State),
-            server_loop(NewState);
+            % NewState = server_receive(Pid, Command, Msg, State),
+            % server_loop(NewState);
+            Port = State#server_state.port,
+            send_port_message(Pid, Command, Msg, Port),
+            server_loop(State);
         done -> 
             Port = State#server_state.port,
             send_port_message(self(), done, [], Port),
@@ -75,8 +78,6 @@ server_done(ServerName) ->
 server_send_port(ServerName, Msg) ->
     whereis(ServerName) ! {py_port, Msg}.
 
-send_base(Msg, State) -> 
-    State#server_state.baseThread ! Msg.
 
 server_get_port(ServerName) -> 
     whereis(ServerName) ! get_port,
@@ -131,3 +132,12 @@ client_receive(Pid, Command, Msg, State) ->
 send_port_message(Pid, Command, Msg, Port) -> 
     Port ! {Pid, {command, term_to_binary({Pid, Command, Msg}) }},
     ok.
+
+
+send_base(Msg, State) -> 
+    State#server_state.baseThread ! Msg.
+
+receive_base() -> 
+    receive 
+        Msg -> Msg 
+    end.

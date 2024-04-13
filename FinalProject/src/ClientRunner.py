@@ -52,6 +52,7 @@ class ClientRunner:
             self.sendMessage(input, data)
 
     def sendMessage(self, command : str, info : dict) -> None:
+        outputLn("Client Message Send: " + command + " : " + str(info))
         match command:
             case "input":
                 self.port.send((Atom("input"), info))
