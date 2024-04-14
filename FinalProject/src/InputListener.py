@@ -11,7 +11,7 @@ class InputListener:
 
 
     def checkAndSendInput(self): 
-        command = ""
+        command = None
         info = dict()
         for event in py.event.get():
             match event.type:
@@ -21,14 +21,16 @@ class InputListener:
                 case py.KEYDOWN:
                     info = dict() 
                     command = "input"
-                    info["direction"] = self.__map_key_to_direction(event.key)
+                    direction = self.__map_key_to_direction(event.key)
+                    if direction:
+                        info["direction"] = direction
+                    else:
+                        command = None
                 case _:
-                    pass
-
-
-            # TODO:: Check that the event is proper
-            
-        return command, info
+                    continue
+        if command:
+            return command, info
+        return None, None
 
     def __map_key_to_direction(self, key):
         """Map Pygame key events to direction strings."""

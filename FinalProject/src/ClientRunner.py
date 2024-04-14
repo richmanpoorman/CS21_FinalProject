@@ -14,8 +14,6 @@ from erpy import stdio_port_connection
 from term import Atom
 import pygame as py
 
-from threading import Lock, Thread
-
 from TestTools import outputLn, outputInit
 
 class ClientRunner:
@@ -24,66 +22,64 @@ class ClientRunner:
         ## TODO:: TESTING INITIALIZATION
         # outputInit()
         
+        self.serverIdMap   = dict() 
         self.display       = Display() 
         self.inputListener = InputListener() 
         self.board         = Board()
 
-        self.serverIdMap   = dict() 
-        self.inbox, self.port = stdio_port_connection()
-        
-        self.messageLock = Lock() 
-        self.messages = []
-
         self.isRunning = True
+
+        self.inbox, self.port = stdio_port_connection()
+
+        self.port.send(Atom("test_message"))
+        
         self.initialize()
         self.run() 
         outputLn("Client Successfully quit")
 
     def initialize(self):
         outputLn("Client Runninng")
-        self.inboxThread = Thread(target = self.messageListener)
-        self.inboxThread.start()
         self.sendMessage("player_join", dict())
 
-    def sendInputs(self):
-        input, data = self.inputListener.checkAndSendInput()
-
-        if input:
-            self.sendMessage(input, data)
-
+    def run(self):
+        while True:
+            # PREAMBLE TO TRICK PYGAME
+            for event in py.event.get():
+                if event.type == py.QUIT:
+                    return
+            
+            for msg in self.inbox:
+                match msg:
+                    case (_, command, info):
+                        self.receiveMessage(command, info) 
+                    case badmessage:
+                        outputLn(badmessage)
+                if not self.isRunning:
+                    return
+        
     def sendMessage(self, command : str, info : dict) -> None:
         outputLn("Client Message Send: " + command + " : " + str(info))
         match command:
             case "input":
+                outputLn("Client sending input")
                 self.port.send((Atom("input"), info))
             case "player_join":
                 self.port.send((Atom("player_join"), info))
             case "quit":
                 outputLn("Client Quitting")
-                self.port.send((Atom("quit"), info))
                 self.isRunning = False
+                self.port.send((Atom("quit"), info))
             case _:
                 outputLn("Unknown Message Sent")
-
-    def messageListener(self) -> None:
-        for msg in self.inbox:
-            _, command, data = msg
-            with self.messageLock:
-                outputLn(command)
-                self.messages.append((command, data))
-                if command == "quit":
-                    return
-
-    def receiveUpdates(self) -> None:
-        with self.messageLock:
-            for msg in self.messages:
-                command, data = msg
-                outputLn("CLIENT RECEIVES: " + command)
-                self.receiveMessage(command, data)
-            self.messages = []
+                self.port.send(Atom("client_badmessage"))
 
     def receiveMessage(self, command : str, data : dict) -> None:
+        outputLn("Received command: " + command)
         match command:
+            case "clock":
+                outputLn("client clock signal received")
+                self.sendInputs()
+                self.__updateBoard()
             case "add_wall":
                 wall = Wall() 
                 serverId = data["id"]
@@ -119,6 +115,11 @@ class ClientRunner:
             case "done":
                 self.isRunning = False
 
+    def sendInputs(self):
+        input, data = self.inputListener.checkAndSendInput()
+        if input:
+            self.sendMessage(input, data)
+
     def __addObject(self, gameObject : GameObject, serverId : int, position : tuple) -> None:
         clientID = self.board.addObject(gameObject, position)
         self.serverIdMap[serverId] = clientID
@@ -129,13 +130,6 @@ class ClientRunner:
     def __updateBoard(self):
         self.display.receiveUpdate(self.board.getBoard())
 
-    def run(self):
-        while self.isRunning:
-            self.receiveUpdates() 
-            self.__updateBoard()
-            self.sendInputs()
-
-            
 py.init()
 ClientRunner()
 py.quit()
