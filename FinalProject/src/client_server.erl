@@ -107,7 +107,7 @@ client_loop(State) ->
             {Command, Data} = binary_to_term(EncodedData),
             NewState = client_send(Command, Data, State),
             case Command of
-                quit -> client_receive(self(), quit, [], State);
+                quit -> self() ! quit;
                 _    -> client_loop(NewState)
             end;
         {from_server, {Pid, Command, Msg}} -> 

@@ -62,16 +62,20 @@ class ClientRunner:
         match command:
             case "input":
                 outputLn("Client sending input")
-                self.port.send((Atom("input"), info))
+                message = (Atom("input"), info)
+                self.port.send(message)
             case "player_join":
-                self.port.send((Atom("player_join"), info))
+                message = (Atom("player_join"), info)
+                self.port.send(message)
             case "quit":
                 outputLn("Client Quitting")
                 self.isRunning = False
-                self.port.send((Atom("quit"), info))
+                message = (Atom("quit"), info)
+                self.port.send(message)
             case _:
                 outputLn("Unknown Message Sent")
-                self.port.send(Atom("client_badmessage"))
+                message = Atom("client_badmessage")
+                self.port.send(message)
 
     def receiveMessage(self, command : str, data : dict) -> None:
         outputLn("Received command: " + command)
