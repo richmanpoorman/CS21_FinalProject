@@ -25,10 +25,11 @@ server_loop(State) ->
     receive
         {__Port, {data, EncodedData}} -> 
             {Command, Data} = binary_to_term(EncodedData),
-            output_format("received command: ~w", [Command]),
+            output_format("received command: ~p", [Command]),
             NewState = server_send(Command, Data, State),
             server_loop(NewState);
         {from_client, {Pid, Command, Msg}} -> 
+            output_format("got command ~p from client", [Command]),
             NewState = server_receive(Pid, Command, Msg, State),
             server_loop(NewState);
         done -> 
@@ -46,7 +47,7 @@ server_loop(State) ->
             server_loop(State);
         Msg -> 
             output_line("Got a bad message"),
-            output_format("received command: ~w", [Msg]),
+            output_format("received command: ~p", [Msg]),
             NewState = server_receive(self(), 'bad_message', Msg, State),
             server_loop(NewState)
     end.
@@ -109,17 +110,16 @@ client_loop(State) ->
             output_format("Erlang sees command: ~p", [Command]),
             NewState = client_send(Command, Data, State),
             case Command of
-                quit -> self() ! quit;
+                quit -> 
+                    output_line("In quit reception"),
+                    client_clock_stop(State),
+                    ok;
                 _    -> client_loop(NewState)
             end;
         {from_server, {Pid, Command, Msg}} -> 
             output_line("In server reception"),
             NewState = client_receive(Pid, Command, Msg, State),
             client_loop(NewState);
-        quit -> 
-            output_line("In quit reception"),
-            client_clock_stop(State),
-            ok;
         clock -> 
             output_line("erlang client clock caught by loop"),
             NewState = client_receive(self(), clock, [], State),
@@ -138,7 +138,9 @@ client_clock(LoopPid) ->
     output_format("erlang client clock send to erlang ~p", [LoopPid]),
     LoopPid ! clock,
     receive 
-        quit -> ok
+        quit -> 
+            output_line("Clock quit"),
+            ok
     after
         ?INPUT_UPDATE_CLOCK -> client_clock(LoopPid)
     end.

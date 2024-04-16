@@ -6,6 +6,9 @@ from Board import Board
 from Ghost import Ghost
 from Player import Player
 from Interactable import Interactable
+from Wall import Wall 
+from Pellet import Pellet 
+from PowerPellet import PowerPellet
 
 from threading import Thread, Lock
 
@@ -29,34 +32,53 @@ class GameLogic:
         self.playerIDs = dict()
         self.updateQueue = []
         
-        self.run()
+
+        self.__setUpBoard()
+        self.__run()
 
     ### SEND BOARD INFORMATION TO ALL USERS ### 
-    def setUpBoard(self):
+    def __setUpBoard(self):
+
+        self.__sendBoardInfo()
         pass
     
-    def sendFullBoardState(self):
-        pass 
+    def __sendBoardInfo(self):
+        playersOnBoard      = [(id, self.board.getPosition(id)) for id, _ in self.board.getAllOfType(Player)     ]
+        ghostsOnBoard       = [(id, self.board.getPosition(id)) for id, _ in self.board.getAllOfType(Ghost)      ]
+        wallsOnBoard        = [(id, self.board.getPosition(id)) for id, _ in self.board.getAllOfType(Wall)       ]
+        pelletsOnBoard      = [(id, self.board.getPosition(id)) for id, _ in self.board.getAllOfType(Pellet)     ] 
+        powerPelletsOnBoard = [(id, self.board.getPosition(id)) for id, _ in self.board.getAllOfType(PowerPellet)]
 
-    def updateModel(self, msg) -> None:  
+        self.__sendInitialObjects("add_player", playersOnBoard)
+        self.__sendInitialObjects("add_ghost", ghostsOnBoard)
+        self.__sendInitialObjects("add_wall", wallsOnBoard)
+        self.__sendInitialObjects("add_pellet", pelletsOnBoard)
+        self.__sendInitialObjects("add_power_pellet", powerPelletsOnBoard)
+    
+    def __sendInitialObjects(self, command : str, idPosPairs : list):
+        for id, pos in idPosPairs:
+            info = {"id" : id, "position" : pos}
+            self.__queueMessage(command, info)
+
+    def __updateModel(self, msg) -> None:  
         outputLn("SERVER RECEIEVED SOME MESSAGE")
         match msg:
             case (pid, command, info):
-                self.parseMessage(pid, command, info)
+                self.__parseMessage(pid, command, info)
             case _:
                 outputLn("Unknown message received")
     
-    def parseMessage(self, pid, command, info):
+    def __parseMessage(self, pid, command, info):
         outputLn("SERVER RECEIVES: " + str(command) + str(info))
         match command:
-            case "close":
-                # self.onClose()
+            case "quit":
+                # self.__onClose()
                 outputLn("Closing")
             case "input":
-                # self.onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]])
+                # self.__onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]])
                 outputLn("input of: " + str(info))
             case "player_join":
-                # self.onJoin(pid)
+                # self.__onJoin(pid)
                 outputLn("player join of: " + str(info))
             case "done":
                 outputLn("Server Done")
@@ -64,19 +86,19 @@ class GameLogic:
             case "py_port":
                 outputLn(command + " " + info)
             case _: 
-                outputLn("No match was found")
+                outputLn("No match was found for " + str(command))
             
-    def onPlayerMove(self, pid : Pid, direction : tuple) -> None:
+    def __onPlayerMove(self, pid : Pid, direction : tuple) -> None:
         player = self.playerIDs[pid]
         newPosition = \
-            self.movePlayer(direction, 
-                            self.board.getPosition(self.playerIDs[pid]))
+            self.__movePlayer(direction, 
+                              self.board.getPosition(self.playerIDs[pid]))
         
         canMove, blocker = self.board.canMoveTo(newPosition)
 
         if canMove: 
             self.board.moveObject(player, newPosition)
-            self.tryToPickUp(blocker, player)
+            self.__tryToPickUp(blocker, player)
         else: 
             if not blocker:
                 return
@@ -86,15 +108,15 @@ class GameLogic:
             
             if self.board.isObjectOfType(blocker, Ghost):
                 if isInvincible:
-                    self.ghostDie(blocker)
+                    self.__ghostDie(blocker)
                 else:
-                    self.playerDie(player)
+                    self.__playerDie(player)
             elif self.board.isObjectOfType(blocker, Player):
                 blockedBy : Player = self.board.getObject(blocker)
                 if isInvincible and not blockedBy.isInvincible():
-                    self.playerDie(blocker)
+                    self.__playerDie(blocker)
     
-    def movePlayer(self, dir : tuple, position : tuple) -> tuple:
+    def __movePlayer(self, dir : tuple, position : tuple) -> tuple:
         w , h  = self.board.getSize()
         dx, dy = dir 
         x , y  = position
@@ -113,18 +135,18 @@ class GameLogic:
     ### RUN NON-PLAYER LOGIC GAME LOGIC ###
 
     def runLogic(self) -> None:
-        self.moveAllGhosts()
-        self.decrementPlayerTimers()
+        self.__moveAllGhosts()
+        self.__decrementPlayerTimers()
 
-    def moveAllGhosts(self) -> None:
+    def __moveAllGhosts(self) -> None:
         ghosts = self.board.getAllOfType(Ghost)
         for ghostID, _ in ghosts: 
-            self.moveGhost(ghostID)
+            self.__moveGhost(ghostID)
     
-    def moveGhost(self, ghostID : int) -> None:
+    def __moveGhost(self, ghostID : int) -> None:
         attemptCounter = 0
         while attemptCounter < 1000:
-            newPosition = self.moveGhostAttempt(ghostID)
+            newPosition = self.__moveGhostAttempt(ghostID)
             canMove, blocker = self.board.canMoveTo(newPosition)
             if canMove:
                 self.board.moveObject(ghostID, newPosition)
@@ -135,16 +157,16 @@ class GameLogic:
             if self.board.isObjectOfType(blocker, Player):
                 player : Player = blockedBy
                 if player.isInvincible():
-                    self.ghostDie(ghostID)
+                    self.__ghostDie(ghostID)
                 else:
-                    self.playerDie(blocker)
+                    self.__playerDie(blocker)
                     self.board.moveObject(ghostID, newPosition)
                 return
             
             attemptCounter += 1
 
     
-    def moveGhostAttempt(self, ghostID : int) -> tuple:
+    def __moveGhostAttempt(self, ghostID : int) -> tuple:
         directions = ((0, 1), (1, 0), (0, -1), (-1, 0))
         w, h = self.board.getSize()
         x, y = self.board.getPosition(ghostID)
@@ -164,33 +186,33 @@ class GameLogic:
         return (newX, newY)
     ### STATE UPDATES ### 
 
-    def playerDie(self, playerID : int) -> None:
+    def __playerDie(self, playerID : int) -> None:
         info = {"id" : playerID}
-        self.queueMessage("player_die", info)
+        self.__queueMessage("player_die", info)
     
-    def ghostDie(self, ghostID : int) -> None: 
+    def __ghostDie(self, ghostID : int) -> None: 
         info = {"id" : ghostID}
-        self.queueMessage("ghost_die", info)
+        self.__queueMessage("ghost_die", info)
     
-    def onClose(self) -> None:
+    def __onClose(self) -> None:
         self.isRunning = False
-        self.queueMessage("done", dict())
+        self.__queueMessage("done", dict())
 
-    def onJoin(self, pid : Pid) -> None:
+    def __onJoin(self, pid : Pid) -> None:
         self.playerIDs[pid] = self.board.addObject(Player(), (0, 0))
         info = {"id" : self.playerIDs[pid]}
-        self.queueMessage("player_join", info)
+        self.__queueMessage("player_join", info)
 
-    def tryToPickUp(self, interactable : int, player : int) -> None:
+    def __tryToPickUp(self, interactable : int, player : int) -> None:
         if not interactable:
             return 
         if self.board.isObjectOfType(interactable, Interactable):
             blockerObject = self.board.getObject(interactable)
             blockerObject.onGet(self.board.getObject(player))
             info = {"id" : interactable, "playerID" : player}
-            self.queueMessage("remove_object", info)
+            self.__queueMessage("remove_object", info)
 
-    def decrementPlayerTimers(self) -> None:
+    def __decrementPlayerTimers(self) -> None:
         players : list = self.board.getAllOfType(Player)
         for playerID, player in players:
             isPreviouslyInvincible = player.isInvincible()
@@ -198,29 +220,29 @@ class GameLogic:
             
             if isPreviouslyInvincible and not isInvincible:
                 info = {"id" : playerID}
-                self.queueMessage("player_vulnerable", info)
+                self.__queueMessage("player_vulnerable", info)
     
     ### SEND MESSAGES ###
 
-    def sendUpdates(self) -> None: 
+    def __sendUpdates(self) -> None: 
         for msg in self.updateQueue:
             self.port.send(msg)
         self.updateQueue = []
 
-    def run(self) -> None:
+    def __run(self) -> None:
         # while self.isRunning:
         outputLn("at top of running loop")
         # TODO:: Self.inbox is ending unexpectedly when sent message
         for msg in self.inbox:
-            outputLn("in updateModel")
-            self.updateModel(msg)
+            outputLn("in __updateModel")
+            self.__updateModel(msg)
             self.runLogic()
-            self.sendUpdates() 
+            self.__sendUpdates() 
             # if not self.isRunning:
             #     return
         outputLn("Finished Running")
 
-    def queueMessage(self, command : str, info : dict):
+    def __queueMessage(self, command : str, info : dict):
         self.updateQueue.append((Atom(command), info))
 
 
