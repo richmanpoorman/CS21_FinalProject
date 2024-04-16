@@ -1,5 +1,8 @@
 from GameObject import GameObject
 from Player import Player
+
+from os import environ 
+environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 from pygame import Surface
 from random import randrange
 

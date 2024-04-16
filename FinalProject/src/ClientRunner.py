@@ -10,9 +10,16 @@ from PowerPellet import PowerPellet
 from Player import Player
 from Wall import Wall 
 
+
 from erpy import stdio_port_connection
 from term import Atom
+
+
+from sys import stdout
+from os import environ 
+environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame as py
+
 
 from TestTools import outputLn, outputInit
 
@@ -31,7 +38,6 @@ class ClientRunner:
 
         self.inbox, self.port = stdio_port_connection()
 
-        self.port.send(Atom("test_message"))
         
         self.initialize()
         self.run() 
@@ -134,6 +140,9 @@ class ClientRunner:
     def __updateBoard(self):
         self.display.receiveUpdate(self.board.getBoard())
 
+
+
 py.init()
+stdout.flush()
 ClientRunner()
 py.quit()

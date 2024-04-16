@@ -1,4 +1,7 @@
 
+from os import environ 
+environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
 import pygame as py
 from GameObject import GameObject
 import numpy as np

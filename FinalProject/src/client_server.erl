@@ -45,6 +45,7 @@ server_loop(State) ->
             send_base(State#server_state.port, State),
             server_loop(State);
         Msg -> 
+            output_line("Got a bad message"),
             output_format("received command: ~w", [Msg]),
             NewState = server_receive(self(), 'bad_message', Msg, State),
             server_loop(NewState)
@@ -92,10 +93,10 @@ client_start(ServerNode, ServerRoom) ->
     register(client, Pid).
 
 client_initalize(PythonSpawn, ServerNode, ServerRoom) ->
-    Port   = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
-    Server = {ServerRoom, ServerNode}, 
+    Port    = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
+    Server  = {ServerRoom, ServerNode}, 
     SelfPid = self(),
-    Clock  = spawn_link(fun () -> client_clock(SelfPid) end),
+    Clock   = spawn_link(fun () -> client_clock(SelfPid) end),
     InitialState = #user_state{port = Port, server = Server, clock = Clock},
     client_loop(InitialState),
     output_line("erlang client close").
@@ -103,8 +104,9 @@ client_initalize(PythonSpawn, ServerNode, ServerRoom) ->
 client_loop(State) -> 
     receive
         {__Port, {data, EncodedData}} -> 
-            output_line("In port reception"),
+            output_line("---GOT PORT RECEPTION---"),
             {Command, Data} = binary_to_term(EncodedData),
+            output_format("Erlang sees command: ~p", [Command]),
             NewState = client_send(Command, Data, State),
             case Command of
                 quit -> self() ! quit;
@@ -122,9 +124,9 @@ client_loop(State) ->
             output_line("erlang client clock caught by loop"),
             NewState = client_receive(self(), clock, [], State),
             client_loop(NewState);
-        Msg  -> 
+        _  -> 
             output_line("In fall through reception"),
-            output_format("~w", [Msg])
+            client_loop(State)
     end. 
 
 post(Command, Data, State) -> 

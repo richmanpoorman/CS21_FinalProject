@@ -1,5 +1,8 @@
 from Interactable import Interactable
 from Player import Player 
+
+from os import environ 
+environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 from pygame import Surface 
 
 class PowerPellet(Interactable):

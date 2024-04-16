@@ -1,3 +1,6 @@
+
+from os import environ 
+environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame
 class GameObject:
     def __init__(self, surface : pygame.Surface | None = None):

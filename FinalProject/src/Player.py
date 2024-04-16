@@ -1,4 +1,7 @@
 from GameObject import GameObject
+
+from os import environ 
+environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 from pygame import Surface
 class Player(GameObject):
     UP, DOWN, LEFT, RIGHT = (0, 1), (0, -1), (-1, 0), (1, 0)
