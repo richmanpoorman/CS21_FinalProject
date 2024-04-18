@@ -1,6 +1,7 @@
 from erpy import stdio_port_connection
 from term import Atom, Pid
 from random import randrange
+from BoardBuilder import BoardBuilder
 
 from Board import Board
 from Ghost import Ghost
@@ -26,7 +27,11 @@ class GameLogic:
         ## TESTING 
         outputInit()
         outputLn("Server Start")
-        self.board = board
+        
+        # Make a board for testing, this section should be deleted =============
+        self.board = BoardBuilder().addWall((0, 5)).addWall((0, 6)).addGhost((5, 5)).board
+        # ======================================================================
+        
         self.isRunning = True
         self.inbox, self.port = stdio_port_connection() 
         self.playerIDs = dict()
