@@ -13,5 +13,8 @@ class Wall(GameObject):
         surface.fill((100, 200, 0))
         return surface
     
-    def pack(self) -> tuple[str, str]:
-        return ("wall", "")
+    def pack(self) -> tuple[str, dict[str, str]]:
+        return ("wall", dict())
+    
+    def unpack(self, data : dict):
+        pass

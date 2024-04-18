@@ -12,7 +12,7 @@
 %%% Params  : (atom) ServerName := The name of the server to start 
 %%% Return  : (bool) If the server was able to start or not
 server_start(ServerName) -> 
-    PythonSpawn = "python -u ../src/GameLogic.py",
+    PythonSpawn = "python -u ../src/GameRunner.py",
     BaseThread  = self(),
     register(ServerName, spawn_link(fun () -> server_initialize(PythonSpawn, BaseThread) end)),
     output_line("Server Done").

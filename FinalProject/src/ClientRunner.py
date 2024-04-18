@@ -109,15 +109,15 @@ def unpack(data) -> GameObject | None:
     name, info = data 
     match name:
         case "wall": 
-            return Wall.unpack(info)
+            return Wall().unpack(info)
         case "player":
-            return Player.unpack(info)
+            return Player().unpack(info)
         case "ghost":
-            return Ghost.unpack(info)
+            return Ghost().unpack(info)
         case "pellet":
-            return Pellet.unpack(info)
+            return Pellet().unpack(info)
         case "powerpellet":
-            return PowerPellet.unpack(info)
+            return PowerPellet().unpack(info)
         case _:
             return None
 

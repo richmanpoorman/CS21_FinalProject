@@ -13,9 +13,12 @@ class GameObject:
     def setSurface(self, surface : pygame.Surface) -> None:
         self.surface = surface
 
-    def pack(self) -> tuple[str, str]: 
-        return ("", "")
+    def pack(self) -> tuple[str, dict[str, str]]: 
+        return ("", dict())
     
-    @staticmethod
-    def unpack(data):
+    def unpack(self, data : dict[str, str]):
         pass
+
+    @staticmethod
+    def defaultPack() -> tuple[str, dict[str, str]]:
+        return ("", dict())

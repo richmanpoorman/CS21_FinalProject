@@ -1,8 +1,17 @@
 from Board import Board
+from Player import Player
+from Ghost import Ghost 
+from Interactable import Interactable
+
+from random import randrange
 
 class GameProcess:
     def __init__(self, board : Board = Board()):
         self.board = board
+
+    def updateBoard(self):
+        self.__moveGhosts()
+        self.__decrementInvincibility()
 
     def getBoard(self):
         return self.board.getBoard()
@@ -16,32 +25,91 @@ class GameProcess:
         if canMove:
             self.board.moveObject(playerID, newPos) 
             if atSpot:
-                self.pickUp(atSpot, playerID)
+                self.__pickUp(atSpot, playerID)
+        else: 
+            if self.board.isObjectOfType(atSpot, Player):
+                p1 : Player = self.board.getObject(playerID)
+                p2 : Player = self.board.getObject(atSpot)
+                if p1.isInvincible() and not p2.isInvincible():
+                    self.playerDie(atSpot)
+                    self.board.moveObject(playerID, newPos)
+                elif p2.isInvincible() and not p1.isInvincible():
+                    self.playerDie(playerID)
+            elif self.board.isObjectOfType(atSpot, Ghost):
+                player : Player = self.board.getObject(playerID)
+                
+                if player.isInvincible():
+                    self.board.moveObject(playerID, newPos)
+                    self.__ghostDie(atSpot)
+                else:
+                    self.playerDie(playerID)
 
+    def __moveGhosts(self) -> None:
+        ghosts = [id for id, _ in self.board.getAllOfType(Ghost)]
+        for ghostID in ghosts:
+            self.__moveSingleGhost(ghostID)
+        
     
-    def moveGhosts(self) -> None:
-        pass
+    def __moveSingleGhost(self, ghostID : int) -> None:
+        direction = self.__ghostAI(ghostID)
+        position  = self.board.getPosition(ghostID)
+        if direction == (0, 0):
+            return 
+        
+        newPos = self.__moveWrap(direction, position)
+        
+        canMove, atSpot = self.board.canMoveTo(newPos) 
+        if canMove:
+            self.board.moveObject(ghostID, newPos) 
+        else:
+            if self.board.isObjectOfType(atSpot, Player):
+                player : Player = self.board.getObject(atSpot)
+                if not player.isInvincible():
+                    self.playerDie(atSpot) 
+                    self.board.moveObject(ghostID, newPos)
     
-    def __moveSingleGhost(self) -> None:
-        pass
-    
-    def __ghostAI(self) -> tuple[int, int]:
-        return (0, 0)
+    def __ghostAI(self, ghostID : int) -> tuple[int, int]:
+        directions = [( 0,  1),
+                      ( 1,  0),
+                      ( 0, -1),
+                      (-1,  0)]
+        return directions[randrange(0, len(directions))]
     
     def playerDie(self, playerID : int) -> None:
-        pass 
+        self.board.removeObject(playerID)
     
-    def ghostDie(self, ghostID : int) -> None:
+    def __ghostDie(self, ghostID : int) -> None:
+        self.board.moveObject(ghostID, (5, 5))
+    
+    def addPlayer(self) -> int:
+        spot = self.__getBlankSpot()
+        playerID = self.board.addObject(Player(), spot)
+        return playerID
+    
+    def __pickUp(self, interactableID : int, playerID : int) -> None:
+        interactable : Interactable = self.board.getObject(interactableID)
+        player       : Player       = self.board.getObject(playerID)
+        interactable.onGet(player)
+    
+    def __decrementInvincibility(self) -> None:
         pass
     
-    def addPlayer(self) -> None:
-        pass
-    
-    def pickUp(self, interactableID : int, playerID : int) -> None:
-        pass
-    
-    def decrementInvincibility(self) -> None:
-        pass
+    def __getBlankSpot(self) -> tuple[int, int]:
+        possibleSpots = self.__findBlankSpots()
+        spot = possibleSpots[randrange(0, len(possibleSpots))]
+        return spot
+
+    def __findBlankSpots(self) -> list[tuple[int, int]]:
+        board = self.getBoard()
+        w, h = board.shape
+
+        emptySpots : list[tuple[int, int]]= []
+        for r in range(w):
+            for c in range(h):
+                if not board[r, c]:
+                    emptySpots.append((r, c))
+
+        return emptySpots
 
     def __moveWrap(self, direction : tuple[int, int], position : tuple[int, int]) -> tuple[int, int]:
         w , h  = self.board.getSize() 
