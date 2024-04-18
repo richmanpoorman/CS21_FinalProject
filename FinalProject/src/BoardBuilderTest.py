@@ -5,7 +5,7 @@ import pygame as py
 from time import sleep 
 
 py.init() 
-board, _ = BoardBuilder((2, 2))\
+board, _ = BoardBuilder((10, 11))\
     .addWall((0, 0))\
     .addGhost((0, 1))\
     .getBoard()

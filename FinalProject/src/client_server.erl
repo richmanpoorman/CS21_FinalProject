@@ -1,9 +1,9 @@
 -module(client_server).
 
 -record(server_state, {port, players, baseThread}).
--record(user_state  , {port, server, clock}).
+-record(user_state  , {port, server, clock, baseThread}).
 
--export([server_start/1, server_done/1, server_send_port/2, server_get_port/1, client_start/2, receive_base/0]).
+-export([server_start/1, server_done/1, server_send_port/2, server_get_port/1, client_start/2, receive_base/0, server_external_done/2]).
 -define(INPUT_UPDATE_CLOCK, 1000).
 %%% SERVER SIDE %%%
 
@@ -13,7 +13,12 @@
 %%% Return  : (bool) If the server was able to start or not
 server_start(ServerName) -> 
     PythonSpawn = "python -u ../src/GameLogic.py",
-    register(ServerName, spawn_link(fun () -> server_initialize(PythonSpawn) end)).
+    BaseThread  = self(),
+    register(ServerName, spawn_link(fun () -> server_initialize(PythonSpawn, BaseThread) end)),
+    % receive 
+    %     done -> ok 
+    % end,
+    output_line("Server Done").
 
 %%% Name    : broadcast
 %%% Purpose : Sends the message to all of the players connected to the server 
@@ -30,10 +35,11 @@ broadcast(Command, Data, State) ->
 %%% Name    : server_initialize
 %%% Purpose : Start of the thread which has the server 
 %%% Params  : (str) PythonSpawn := The command to start the python logic module
+%%%           (pid) BaseThread  := The base thread which called the function
 %%% Return  : ok
-server_initialize(PythonSpawn) -> 
+server_initialize(PythonSpawn, BaseThread) -> 
     Port = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
-    InitialState = #server_state{port = Port, players = [], baseThread = self()},
+    InitialState = #server_state{port = Port, players = [], baseThread = BaseThread},
     server_loop(InitialState).
 
 %%% Name    : server_loop
@@ -57,6 +63,8 @@ server_loop(State) ->
             broadcast(done, [], State),
             send_base(done, State),
             Port ! {self(), close},
+            State#server_state.baseThread ! done,
+            output_line("Received Done"),
             ok;
         {py_port, Msg} ->
             Port = State#server_state.port, 
@@ -111,6 +119,10 @@ server_receive(Pid, Command, Msg, State) ->
 server_done(ServerName) -> 
     whereis(ServerName) ! done. 
 
+
+server_external_done(ServerNode, ServerRoom) -> 
+    {ServerRoom, ServerNode} ! done.
+
 %%% Name    : server_send_port
 %%% Purpose : Testing function which sends message from erlang across the port
 %%% Params  : (atom) ServerName := The name of the server to go to
@@ -139,8 +151,14 @@ server_get_port(ServerName) ->
 client_start(ServerNode, ServerRoom) -> 
     output_line("client start"),
     PythonSpawn = "python -u ../src/ClientRunner.py",
-    Pid = spawn_link(fun () -> client_initalize(PythonSpawn, ServerNode, ServerRoom) end),
-    register(client, Pid).
+    BaseThread  = self(),
+    % Pid = spawn_link(fun () -> client_initalize(PythonSpawn, ServerNode, ServerRoom, BaseThread) end),
+    % register(client, Pid).
+    register(client, self()),
+    client_initalize(PythonSpawn, ServerNode, ServerRoom, BaseThread),
+    receive 
+        quit -> ok 
+    end. 
 
 %%% Name    : client_initialize
 %%% Purpose : Starts the client thread
@@ -148,12 +166,12 @@ client_start(ServerNode, ServerRoom) ->
 %%%           (atom) ServerNode   := The server node to join 
 %%%           (atom) ServerRoom   := The server room on the node to join
 %%% Return  : (N/A)
-client_initalize(PythonSpawn, ServerNode, ServerRoom) ->
+client_initalize(PythonSpawn, ServerNode, ServerRoom, BaseThread) ->
     Port    = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
     Server  = {ServerRoom, ServerNode}, 
     SelfPid = self(),
     Clock   = spawn_link(fun () -> client_clock(SelfPid) end),
-    InitialState = #user_state{port = Port, server = Server, clock = Clock},
+    InitialState = #user_state{port = Port, server = Server, clock = Clock, baseThread = BaseThread},
     client_loop(InitialState),
     output_line("erlang client close").
 
@@ -172,6 +190,7 @@ client_loop(State) ->
                 quit -> 
                     output_line("In quit reception"),
                     client_clock_stop(State),
+                    State#user_state.baseThread ! quit, 
                     ok;
                 _    -> client_loop(NewState)
             end;
