@@ -8,7 +8,7 @@ import numpy as np
 BOARD_SIZE = (10, 11)
 WINDOW_DIM = (500,500)
 class Display:
-    def __init__(self,dimension: tuple[int, int] = WINDOW_DIM):
+    def __init__(self, dimension : tuple[int, int] = WINDOW_DIM):
         '''
             Name    : init
             Params  : (dimension) tuple[int, int] := optional parameter that has the 
@@ -33,7 +33,7 @@ class Display:
             Return  : N/A
         '''
 
-        rows, cols = BOARD_SIZE
+        rows, cols = self.size
         dim_row, dim_col = WINDOW_DIM
         #Get the size of any surface in each cell of the display window
         cell_width = (dim_col // cols) * 2
@@ -73,8 +73,9 @@ class Display:
             self.updateDisplay()
         
 
-    def receiveUpdate(self, newBoard) -> None:
-       self.Board = newBoard
+    def receiveUpdate(self, newBoard : np.ndarray) -> None:
+       self.board = newBoard
+       self.size  = newBoard.shape
        self.updateDisplay()
        
     
