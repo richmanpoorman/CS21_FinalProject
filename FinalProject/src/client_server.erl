@@ -157,10 +157,10 @@ client_initalize(PythonSpawn, ServerNode, ServerRoom) ->
     client_loop(InitialState),
     output_line("erlang client close").
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : client_loop
+%%% Purpose : Gets messages from the client and sends them out appropriately
+%%% Params  : (server_state) State := Client loop state
+%%% Return  : (N/A)
 client_loop(State) -> 
     receive
         {__Port, {data, EncodedData}} -> 
@@ -188,19 +188,21 @@ client_loop(State) ->
             client_loop(State)
     end. 
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : post
+%%% Purpose : Sends the message to the server
+%%% Params  : (atom)       Command := The message type/name 
+%%%           (dict)       Data    := The data to run the command 
+%%%           (user_state) State   := The client loop state
+%%% Return  : (user_state) The state after posting
 post(Command, Data, State) -> 
     Server = State#user_state.server,
     Server ! {from_client, {self(), Command, Data}},
     State. 
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : client_clock
+%%% Purpose : Starts a loop that will wake up the client to send inputs periodically
+%%% Params  : (pid) LoopPid := The pid of the client to alert
+%%% Return  : (N/A)
 client_clock(LoopPid) ->
     output_format("erlang client clock send to erlang ~p", [LoopPid]),
     LoopPid ! clock,
@@ -214,65 +216,75 @@ client_clock(LoopPid) ->
 
     %%% CLIENT HELPERS %%%
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : client_send
+%%% Purpose : Sends the message to the port after receiving from the port
+%%% Params  : (atom)       Command := The message type/name 
+%%%           (dict)       Data    := The data to run the command 
+%%%           (user_state) State   := The client loop state
+%%% Return  : (user_state) The state after posting
 client_send(Command, Data, State) -> 
     post(Command, Data, State).
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : client_receive
+%%% Purpose : Receives message from the server and sends it to the client python
+%%% Params  : (pid)        Pid     := The pid the message is received from 
+%%%           (atom)       Command := The command the server sent 
+%%%           (data)       Msg     := The data to run the command 
+%%%           (user_state) State   := The client loop state
+%%% Return  : (user_state) The state after receiving
 client_receive(Pid, Command, Msg, State) -> 
     Port = State#user_state.port,
     send_port_message(Pid, Command, Msg, Port),
     State.
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : client_clock_stop
+%%% Purpose : Stops the clock for message input
+%%% Params  : (user_state) State := The loop state
+%%% Return  : (N/A)
 client_clock_stop(State) ->
     State#user_state.clock ! quit.
 
 %%% MESSAGE PASSING HELPERS %%%
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : send_port_message
+%%% Purpose : Sends the message over the port
+%%% Params  : (pid)  Pid     := The pid the data is received from
+%%%           (atom) Command := The message name/type 
+%%%           (atom) Msg     := The data to go along with the message
+%%%           (port) Port    := The port to send the data over
+%%% Return  : ok
 send_port_message(Pid, Command, Msg, Port) -> 
     Port ! {self(), {command, term_to_binary({Pid, Command, Msg}) }},
     ok.
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : send_base
+%%% Purpose : Test function that sends the message to the server base thread
+%%% Params  : (atom)         Msg   := The message to send
+%%%           (server_state) State := Server loop state
+%%% Return  : (N/A)
 send_base(Msg, State) -> 
     State#server_state.baseThread ! Msg.
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : receive_base
+%%% Purpose : Receives messages on the server sent by send_base
+%%% Params  : (None)
+%%% Return  : (atom) The message sent from send_base
 receive_base() -> 
     receive 
         Msg -> Msg 
     end.
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : output_line
+%%% Purpose : Prints the message out to the Test.txt file
+%%% Params  : (atom) Msg := Message to print
+%%% Return  : (N/A)
 output_line(Msg) -> 
     output_format(Msg, []).
 
-%%% Name    : 
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Name    : output_format
+%%% Purpose : Prints the message out to the Test.txt file with the formatting
+%%% Params  : (atom) Msg   := Message to print
+%%%           (list) Param := Parameters to substitute in
+%%% Return  : (N/A)
 output_format(Msg, Param) -> 
     file:write_file("Test.txt", io_lib:fwrite(Msg ++ "\n", Param), [append]).
