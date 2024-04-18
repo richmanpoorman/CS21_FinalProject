@@ -17,7 +17,7 @@ class GameObject:
         return ("", dict())
     
     def unpack(self, data : dict[str, str]):
-        pass
+        return self
 
     @staticmethod
     def defaultPack() -> tuple[str, dict[str, str]]:

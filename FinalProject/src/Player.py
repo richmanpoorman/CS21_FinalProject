@@ -30,3 +30,17 @@ class Player(GameObject):
         surface = Surface((200, 200))
         surface.fill((0, 200, 100))
         return surface
+    
+    def pack(self) -> tuple[str, dict[str, str]]: 
+        return ("player", {"invincible" : "True" if self.isInvincible() else "False"})
+    
+    def unpack(self, info):
+        invincibleState = info["invincible"]
+        match invincibleState:
+            case "True":
+               self.setInvincible()
+            case "False":
+                self.removeInvincible()
+            case _:
+                pass 
+        return self

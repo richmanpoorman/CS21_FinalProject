@@ -17,4 +17,4 @@ class Wall(GameObject):
         return ("wall", dict())
     
     def unpack(self, data : dict):
-        pass
+        return self

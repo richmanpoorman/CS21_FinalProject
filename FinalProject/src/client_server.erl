@@ -1,10 +1,11 @@
 -module(client_server).
 
--record(server_state, {port, players, baseThread}).
+-record(server_state, {port, players, clock, baseThread}).
 -record(user_state  , {port, server, clock, baseThread}).
 
 -export([server_start/1, server_done/1, server_send_port/2, server_get_port/1, client_start/2, receive_base/0]).
 -define(INPUT_UPDATE_CLOCK, 10).
+-define(DISPLAY_UPDATE_CLOCK, 60).
 %%% SERVER SIDE %%%
 
 %%% Name    : server_start
@@ -36,7 +37,9 @@ broadcast(Command, Data, State) ->
 %%% Return  : ok
 server_initialize(PythonSpawn, BaseThread) -> 
     Port = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
-    InitialState = #server_state{port = Port, players = [], baseThread = BaseThread},
+    SelfPid = self(),
+    Clock   = spawn_link(fun () -> server_clock(SelfPid) end),
+    InitialState = #server_state{port = Port, players = [], clock = Clock, baseThread = BaseThread},
     server_loop(InitialState).
 
 %%% Name    : server_loop
@@ -66,6 +69,9 @@ server_loop(State) ->
             State#server_state.baseThread ! done,
             output_line("Received Done"),
             server_loop(State);
+        clock -> 
+            NewState = server_receive(self(), clock, [], State),
+            server_loop(NewState);
         {py_port, Msg} ->
             Port = State#server_state.port, 
             send_port_message(self(), py_port, Msg, Port),
@@ -115,6 +121,17 @@ server_receive(Pid, Command, Msg, State) ->
             State
     end.
 
+server_clock(LoopPid) ->
+    LoopPid ! clock,
+    receive 
+        quit -> 
+            % output_line("Clock quit"),
+            ok
+    after
+        ?INPUT_UPDATE_CLOCK -> client_clock(LoopPid)
+    end.
+
+
 %%% Name    : server_done
 %%% Purpose : Closes the server of the given name
 %%% Params  : (atom) ServerName := Name of the server room
@@ -139,6 +156,7 @@ server_get_port(ServerName) ->
     receive 
         Msg -> Msg
     end. 
+
 
 %%% CLIENT SIDE %%%
 

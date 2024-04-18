@@ -15,3 +15,9 @@ class Ghost(GameObject):
         surface = Surface((200, 200))
         surface.fill((200, 0, 200))
         return surface
+    
+    def pack(self) -> tuple[str, dict[str, str]]:
+        return ("pellet", dict())
+    
+    def unpack(self, info):
+        return self

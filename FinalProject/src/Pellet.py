@@ -20,3 +20,9 @@ class Pellet(Interactable):
         surface = Surface((200, 200))
         surface.fill((0, 200, 0))
         return surface
+    
+    def pack(self) -> tuple[str, dict[str, str]]:
+        return ("pellet", dict())
+    
+    def unpack(self, info):
+        return self

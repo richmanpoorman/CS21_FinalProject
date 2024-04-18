@@ -1,37 +1,63 @@
 from GameProcess import GameProcess
-from Erpy import stdio_port_connection
+from erpy import stdio_port_connection
 from term import Atom, Pid
 from GameObject import GameObject
+from Board import Board 
+from BoardBuilder import BoardBuilder
+
+from threading import Thread, Lock
+from time import sleep
 
 from TestTools import outputLn, outputInit
 
 class GameRunner: 
 
     POSITION = {
-        "up"    : ( 0,  1), 
-        "down"  : ( 0, -1),
-        "left"  : (-1,  0),
-        "right" : ( 1,  0)
+        "up"    : (-1,  0), 
+        "down"  : ( 1,  0),
+        "left"  : ( 0, -1),
+        "right" : ( 0,  1)
     }
 
     def __init__(self):
-        self.logic = GameProcess()
+        self.logic = self.__initializeLogic()
         self.inbox, self.port = stdio_port_connection()
         self.playerIDs = dict()
         self.isRunning = True
+        
+        self.updateLock   = Lock() 
+        self.updateThread = Thread(target = self.updateCycle)
+        self.updateThread.start()
 
+        self.isRunning = True
 
         self.__run()
 
 
+    def __initializeLogic(self) -> GameProcess:
+
+        board, _ = BoardBuilder()\
+                    .addWall((0, 5))\
+                    .addWall((6, 0))\
+                    .addGhost((1, 1))\
+                    .getBoard()
+        return GameProcess(board)
+
+
+    def updateCycle(self):
+        while self.isRunning:
+            with self.updateLock:
+                self.logic.updateBoard()
+            sleep(0.5)
+
     def __run(self):
         outputLn("at top of running loop")
         for msg in self.inbox:
-            self.__receiveMessage(msg)
-            self.logic.updateBoard()
-            self.__sendBoard()
+            with self.updateLock:
+                self.__receiveMessage(msg)
             if not self.isRunning:
-                return 
+                break
+        self.isRunning = False
         outputLn("Finished Running")
 
     def __receiveMessage(self, msg):
@@ -64,6 +90,8 @@ class GameRunner:
                 outputLn("Server Done")
             case "py_port":
                 outputLn(command + " " + info)
+            case "clock":
+                self.__sendBoard()
             case _: 
                 outputLn("No match was found for " + str(command))
 
@@ -71,6 +99,8 @@ class GameRunner:
         self.port.send(Atom("done"))
 
     def __sendBoard(self):
+        outputLn("Server Board: ")
+        outputLn(f"{self.logic.getBoard()}")
         board : list[list[GameObject | None]] = self.logic.getBoard().tolist()
         nonePack : tuple[str, dict[str, str]] = GameObject.defaultPack()
         packedBoard = [[item.pack() if item else nonePack for item in row] for row in board]

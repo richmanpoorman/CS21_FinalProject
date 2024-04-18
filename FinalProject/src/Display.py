@@ -32,7 +32,7 @@ class Display:
             Purpose : Update the display window with all the gameObjects in the board
             Return  : N/A
         '''
-
+        self.window.fill((0, 0, 0))
         rows, cols = self.size
         dim_row, dim_col = WINDOW_DIM
         #Get the size of any surface in each cell of the display window

@@ -19,3 +19,10 @@ class PowerPellet(Interactable):
         surface = Surface((200, 200))
         surface.fill((200, 100, 0))
         return surface
+    
+
+    def pack(self) -> tuple[str, dict[str, str]]:
+        return ("powerpellet", dict()) 
+    
+    def unpack(self, info):
+        return self

@@ -1,3 +1,5 @@
+
+from os import environ 
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 from Display import Display
@@ -16,9 +18,6 @@ from Wall import Wall
 from erpy import stdio_port_connection
 from term import Atom
 
-
-from sys import stdout
-from os import environ 
 
 import pygame as py
 import numpy as np
@@ -66,8 +65,7 @@ class ClientRunner:
                     return
         
     def sendMessage(self, command : str, info : dict) -> None:
-        if command != "clock":
-            outputLn("Client Message Send: " + command + " : " + str(info))
+        outputLn("Client Message Send: " + command + " : " + str(info))
         match command:
             case "input":
                 outputLn("Client sending input")
@@ -87,14 +85,18 @@ class ClientRunner:
                 self.port.send(message)
 
     def receiveMessage(self, command : str, data : dict) -> None:
-        outputLn("Received command: " + command)
+        if command != "clock":
+            outputLn("Received command: " + command)
         match command:
             case "clock":
                 self.sendInputs()
             case "display":
                 extractedData = data["data"]
+                outputLn(str(extractedData))
                 arrData = [ [unpack(item) for item in row] 
                                           for row in extractedData ]
+                outputLn(str(arrData))
+                outputLn(f"{np.array(arrData)}")
                 self.display.receiveUpdate(np.array(arrData))
             case "done":
                 self.isRunning = False
