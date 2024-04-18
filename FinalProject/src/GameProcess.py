@@ -3,11 +3,25 @@ from Player import Player
 from Ghost import Ghost 
 from Interactable import Interactable
 
+from Wall import Wall
+
 from random import randrange
 
 class GameProcess:
-    def __init__(self, board : Board = Board()):
+    def __init__(self, board : Board = Board(), isRandom = False):
         self.board = board
+        if isRandom:
+            self.__makeRandomBoard()
+
+    def __makeRandomBoard(self):
+        numWalls = 20
+        for _ in range(numWalls):
+            self.board.addObject(Wall(), self.__getBlankSpot())
+        
+        numGhosts = 5 
+        for _ in range(numGhosts):
+            self.board.addObject(Ghost(), self.__getBlankSpot())
+
 
     def updateBoard(self):
         self.__moveGhosts()

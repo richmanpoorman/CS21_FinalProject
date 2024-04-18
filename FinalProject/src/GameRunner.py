@@ -35,13 +35,14 @@ class GameRunner:
 
 
     def __initializeLogic(self) -> GameProcess:
-
-        board, _ = BoardBuilder()\
-                    .addWall((0, 5))\
-                    .addWall((6, 0))\
-                    .addGhost((1, 1))\
-                    .getBoard()
-        return GameProcess(board)
+        # wall_count = 20
+        # boardBuild = BoardBuilder()
+        # board, _ = BoardBuilder()\
+        #             .addWall((0, 5))\
+        #             .addWall((6, 0))\
+        #             .addGhost((1, 1))\
+        #             .getBoard()
+        return GameProcess(isRandom = True)
 
 
     def updateCycle(self):
