@@ -177,7 +177,7 @@ class Board:
             Purpose : Gets all of the game objects with the types
             Return  : ((ID, GameObject)...) The list of the ids and game objects
         '''
-        return [(id, gameObject) for (id, gameObject) in self.gameObject 
+        return [(id, gameObject) for id, gameObject in self.gameObject.items()
                                  if isinstance(gameObject, objectType)]
 
     def getPosition(self, objectID : int) -> tuple:
