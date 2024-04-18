@@ -36,8 +36,8 @@ class Display:
         rows, cols = self.size
         dim_row, dim_col = WINDOW_DIM
         #Get the size of any surface in each cell of the display window
-        cell_width = (dim_col // cols) * 2
-        cell_height = (dim_row // rows) * 2
+        cell_width = (dim_col // cols)
+        cell_height = (dim_row // rows)
 
         for r in range(rows):
             for c in range(cols):

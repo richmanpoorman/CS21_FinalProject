@@ -7,7 +7,7 @@ from time import sleep
 py.init() 
 board, _ = BoardBuilder((2, 2))\
     .addWall((0, 0))\
-    .addWall((0, 1))\
+    .addGhost((0, 1))\
     .getBoard()
 
 display = Display()
