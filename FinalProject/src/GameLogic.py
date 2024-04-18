@@ -29,7 +29,9 @@ class GameLogic:
         outputLn("Server Start")
         
         # Make a board for testing, this section should be deleted =============
-        self.board = BoardBuilder().addWall((0, 5)).addWall((0, 6)).addGhost((5, 5)).board
+        #TODO: Player does not move yet, InputListener is listening correctly. Might need to look into Player object.
+        self.board, _ = BoardBuilder().addWall((0, 5)).addWall((0, 6)).addGhost((5, 5)).getBoard()
+        outputLn(f"{self.board.getBoard()}")
         # ======================================================================
         
         self.isRunning = True
@@ -206,8 +208,8 @@ class GameLogic:
 
     def __onJoin(self, pid : Pid) -> None:
         self.playerIDs[pid] = self.board.addObject(Player(), (0, 0))
-        info = {"id" : self.playerIDs[pid]}
-        self.__queueMessage("player_join", info)
+        info = {"id" : self.playerIDs[pid], "position" : (0, 0)}
+        self.__queueMessage("add_player", info)
 
     def __tryToPickUp(self, interactable : int, player : int) -> None:
         if not interactable:
