@@ -6,6 +6,8 @@ from Interactable import Interactable
 from Ghost import Ghost
 from Wall import Wall 
 
+from TestTools import outputLn
+
 class Board:
     BOARD_SIZE = (10, 11)
     def __init__(self, boardSize : tuple = BOARD_SIZE):
@@ -54,6 +56,16 @@ class Board:
         return None if position not in self.positions \
                     else self.gameObject[self.positions[position]]
     
+    def isIn(self, objectID : int) -> bool:
+        '''
+            Name    : isIn
+            Params  : (ID) objectID := The id to check is in
+            Purpose : Checks if the object is in the board properly
+            Return  : (bool) Whether it is in the board or not
+        '''
+        return objectID in self.locations and \
+               self.locations[objectID] in self.positions
+
     def getAtAll(self, position : tuple) -> list:
         
         current = self.__getAtID(position)
@@ -153,12 +165,16 @@ class Board:
             Return  : ((bool, GameObject)) Whether or not the object can move 
                                            there, and the object stopping it
         '''
-        if position not in self.positions or not self.positions[position]:
+        gameObject = self.__getAtID(position)
+        if not gameObject:
             return (True, None) 
-        gameObject = self.gameObject[self.positions[position]]
+        
         if isinstance(gameObject, Interactable):
             return (True, gameObject) 
         
+        
+        outputLn("--Game Object: " + str(gameObject))
+
         return (False, gameObject)
 
     def getSize(self) -> tuple:
@@ -199,9 +215,14 @@ class Board:
             Purpose : Returns if the object is of the suspected type
             Return  : (bool) Whether the object is the given type
         '''
-        if objectID not in self.gameObject:
-            return False 
-        return isinstance(self.getObject(objectID), checkType)
+
+        outputLn("> In isObjectOfType")
+        gameObject = self.getObject(objectID)
+        outputLn(":::: isObjectOfType: " + str(gameObject))
+        if not gameObject:
+            return False
+        
+        return isinstance(gameObject, checkType)
     
     
     def __getAtID(self, position : tuple) -> int | None: 

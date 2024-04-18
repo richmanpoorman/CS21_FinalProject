@@ -7,6 +7,8 @@ from Wall import Wall
 
 from random import randrange
 
+from TestTools import outputLn
+
 class GameProcess:
     def __init__(self, board : Board = Board(), isRandom = False):
         self.board = board
@@ -31,16 +33,20 @@ class GameProcess:
         return self.board.getBoard()
 
     def playerMove(self, playerID : int, direction : tuple) -> None:
+        if not self.board.isIn(playerID):
+            return
+        
         playerPos = self.board.getPosition(playerID) 
         newPos    = self.__moveWrap(direction, playerPos) 
 
         canMove, atSpot = self.board.canMoveTo(newPos) 
-
+        
         if canMove:
             self.board.moveObject(playerID, newPos) 
             if atSpot:
                 self.__pickUp(atSpot, playerID)
         else: 
+            outputLn("Player sees: " + str(self.board.getObject(atSpot)))
             if self.board.isObjectOfType(atSpot, Player):
                 p1 : Player = self.board.getObject(playerID)
                 p2 : Player = self.board.getObject(atSpot)
@@ -65,6 +71,8 @@ class GameProcess:
         
     
     def __moveSingleGhost(self, ghostID : int) -> None:
+        if not self.board.isIn(ghostID):
+            return 
         direction = self.__ghostAI(ghostID)
         position  = self.board.getPosition(ghostID)
         if direction == (0, 0):
@@ -76,6 +84,7 @@ class GameProcess:
         if canMove:
             self.board.moveObject(ghostID, newPos) 
         else:
+            # outputLn(str(self.board.getObject(atSpot)))
             if self.board.isObjectOfType(atSpot, Player):
                 player : Player = self.board.getObject(atSpot)
                 if not player.isInvincible():
@@ -83,6 +92,9 @@ class GameProcess:
                     self.board.moveObject(ghostID, newPos)
     
     def __ghostAI(self, ghostID : int) -> tuple[int, int]:
+        if not self.board.isIn(ghostID):
+            return (0, 0)
+        
         directions = [( 0,  1),
                       ( 1,  0),
                       ( 0, -1),
@@ -90,9 +102,14 @@ class GameProcess:
         return directions[randrange(0, len(directions))]
     
     def playerDie(self, playerID : int) -> None:
+        if not self.board.isIn(playerID):
+            return
         self.board.removeObject(playerID)
     
     def __ghostDie(self, ghostID : int) -> None:
+        if not self.board.isIn(ghostID):
+            return
+        
         self.board.moveObject(ghostID, (5, 5))
     
     def addPlayer(self) -> int:
@@ -101,6 +118,9 @@ class GameProcess:
         return playerID
     
     def __pickUp(self, interactableID : int, playerID : int) -> None:
+        if not self.board.isIn(interactableID) or not self.board.isIn(playerID):
+            return
+        
         interactable : Interactable = self.board.getObject(interactableID)
         player       : Player       = self.board.getObject(playerID)
         interactable.onGet(player)

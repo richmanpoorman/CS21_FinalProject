@@ -85,18 +85,13 @@ class ClientRunner:
                 self.port.send(message)
 
     def receiveMessage(self, command : str, data : dict) -> None:
-        if command != "clock":
-            outputLn("Received command: " + command)
         match command:
             case "clock":
                 self.sendInputs()
             case "display":
                 extractedData = data["data"]
-                outputLn(str(extractedData))
                 arrData = [ [unpack(item) for item in row] 
                                           for row in extractedData ]
-                outputLn(str(arrData))
-                outputLn(f"{np.array(arrData)}")
                 self.display.receiveUpdate(np.array(arrData))
             case "done":
                 self.isRunning = False

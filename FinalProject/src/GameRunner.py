@@ -7,6 +7,7 @@ from BoardBuilder import BoardBuilder
 
 from threading import Thread, Lock
 from time import sleep
+from sys import stdout
 
 from TestTools import outputLn, outputInit
 
@@ -97,16 +98,16 @@ class GameRunner:
                 outputLn("No match was found for " + str(command))
 
     def __endServer(self):
-        self.port.send(Atom("done"))
+        self.isRunning = False
+        # self.port.send(Atom("done"))
 
     def __sendBoard(self):
-        outputLn("Server Board: ")
-        outputLn(f"{self.logic.getBoard()}")
         board : list[list[GameObject | None]] = self.logic.getBoard().tolist()
         nonePack : tuple[str, dict[str, str]] = GameObject.defaultPack()
         packedBoard = [[item.pack() if item else nonePack for item in row] for row in board]
         self.port.send((Atom("display"), {"data" : packedBoard}))
 
 
+stdout.flush()
 outputInit()
 GameRunner() 

@@ -50,7 +50,7 @@ server_loop(State) ->
     receive
         {__Port, {data, EncodedData}} -> 
             {Command, Data} = binary_to_term(EncodedData),
-            output_format("received command: ~p", [Command]),
+            % output_format("received command: ~p", [Command]),
             NewState = server_send(Command, Data, State),
             case Command of 
                 done -> ok;
@@ -67,8 +67,7 @@ server_loop(State) ->
             send_base(done, State),
             Port ! {self(), close},
             State#server_state.baseThread ! done,
-            output_line("Received Done"),
-            server_loop(State);
+            output_line("Received Done");
         clock -> 
             NewState = server_receive(self(), clock, [], State),
             server_loop(NewState);
@@ -212,7 +211,7 @@ client_loop(State) ->
                 _    -> client_loop(NewState)
             end;
         {from_server, {Pid, Command, Msg}} -> 
-            output_line("In server reception"),
+            % output_line("In server reception"),
             NewState = client_receive(Pid, Command, Msg, State),
             client_loop(NewState);
         clock -> 
