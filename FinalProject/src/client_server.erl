@@ -132,17 +132,17 @@ server_get_port(ServerName) ->
 %%% CLIENT SIDE %%%
 
 %%% Name    : client_start
-%%% Purpose : (atom) The name of the server node
-%%%           (atom) 
-%%% Params  : 
-%%% Return  : 
+%%% Purpose : Starts the client 
+%%% Params  : (atom) The name of the server node
+%%%           (atom) The room of the server on the server node
+%%% Return  : (bool) True if the client successfully starts
 client_start(ServerNode, ServerRoom) -> 
     output_line("client start"),
     PythonSpawn = "python -u ../src/ClientRunner.py",
     Pid = spawn_link(fun () -> client_initalize(PythonSpawn, ServerNode, ServerRoom) end),
     register(client, Pid).
 
-%%% Name    : 
+%%% Name    : client_initialize
 %%% Purpose : 
 %%% Params  : 
 %%% Return  : 
