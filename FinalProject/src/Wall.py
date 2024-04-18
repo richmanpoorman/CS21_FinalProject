@@ -12,3 +12,6 @@ class Wall(GameObject):
         surface = Surface((200, 200))
         surface.fill((100, 200, 0))
         return surface
+    
+    def pack(self) -> tuple[str, str]:
+        return ("wall", "")

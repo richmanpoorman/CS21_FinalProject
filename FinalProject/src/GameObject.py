@@ -12,3 +12,10 @@ class GameObject:
 
     def setSurface(self, surface : pygame.Surface) -> None:
         self.surface = surface
+
+    def pack(self) -> tuple[str, str]: 
+        return ("", "")
+    
+    @staticmethod
+    def unpack(data):
+        pass
