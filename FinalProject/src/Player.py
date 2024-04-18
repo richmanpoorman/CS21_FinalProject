@@ -3,6 +3,8 @@ from GameObject import GameObject
 from os import environ 
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 from pygame import Surface
+import pygame as py
+path = "./images/pac_man_fram2.jpg"
 class Player(GameObject):
     UP, DOWN, LEFT, RIGHT = (0, 1), (0, -1), (-1, 0), (1, 0)
     INVINCIBLE_DURATION   = 10
@@ -27,8 +29,7 @@ class Player(GameObject):
         return self.isInvincible()
     
     def getSurface(self) -> Surface | None:
-        surface = Surface((200, 200))
-        surface.fill((0, 200, 100))
+        surface = py.image.load(path)
         return surface
     
     def pack(self) -> tuple[str, dict[str, str]]: 
