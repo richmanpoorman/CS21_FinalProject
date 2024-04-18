@@ -72,13 +72,13 @@ class GameLogic:
         outputLn("SERVER RECEIVES: " + str(command) + str(info))
         match command:
             case "quit":
-                # self.__onClose()
+                self.__playerDie(pid) # need testing
                 outputLn("Closing")
             case "input":
-                # self.__onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]])
+                self.__onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]]) # need testing
                 outputLn("input of: " + str(info))
             case "player_join":
-                # self.__onJoin(pid)
+                self.__onJoin(pid) # need testing
                 outputLn("player join of: " + str(info))
             case "done":
                 outputLn("Server Done")
