@@ -1,4 +1,4 @@
-from erpy import stdio_port_connection
+from Erpy import stdio_port_connection
 from term import Atom, Pid
 from random import randrange
 from BoardBuilder import BoardBuilder
@@ -11,10 +11,10 @@ from Wall import Wall
 from Pellet import Pellet 
 from PowerPellet import PowerPellet
 
-from threading import Thread, Lock
-
 ## TESTING FUNCTIONS
 from TestTools import outputInit, outputLn
+
+
 class GameLogic:
     POSITION_DICT = {
         "up"    : ( 0,  1), 
@@ -22,6 +22,8 @@ class GameLogic:
         "left"  : (-1,  0),
         "right" : ( 1,  0)
     }
+
+    UPDATE_TIMER = 0.5
 
     def __init__(self, board = Board()):
         ## TESTING 
@@ -39,7 +41,6 @@ class GameLogic:
         self.playerIDs = dict()
         self.updateQueue = []
         
-
         self.__setUpBoard()
         self.__run()
 
@@ -47,8 +48,7 @@ class GameLogic:
     def __setUpBoard(self):
 
         self.__sendBoardInfo()
-        pass
-    
+
     def __sendBoardInfo(self):
         playersOnBoard      = [(id, self.board.getPosition(id)) for id, _ in self.board.getAllOfType(Player)     ]
         ghostsOnBoard       = [(id, self.board.getPosition(id)) for id, _ in self.board.getAllOfType(Ghost)      ]
@@ -80,17 +80,18 @@ class GameLogic:
         match command:
             case "quit":
                 self.__playerDie(pid) # need testing
-                outputLn("Closing")
+                outputLn(f"{self.board.getBoard()}")
+                outputLn("Player quit")
             case "input":
                 self.__onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]]) # need testing
                 outputLn("input of: " + str(info))
             case "player_join":
                 self.__onJoin(pid) # need testing
                 outputLn("player join of: " + str(info))
+                outputLn(f"{self.board.getBoard()}")
             case "done":
                 self.__onClose() # need testing
                 outputLn("Server Done")
-                self.isRunning = False
             case "py_port":
                 outputLn(command + " " + info)
             case _: 
@@ -203,12 +204,14 @@ class GameLogic:
         self.__queueMessage("ghost_die", info)
     
     def __onClose(self) -> None:
+
         self.isRunning = False
-        self.__queueMessage("done", dict())
+        self.__queueMessage("done", {"done" : []})
 
     def __onJoin(self, pid : Pid) -> None:
         self.playerIDs[pid] = self.board.addObject(Player(), (0, 0))
         info = {"id" : self.playerIDs[pid], "position" : (0, 0)}
+        self.__sendBoardInfo()
         self.__queueMessage("add_player", info)
 
     def __tryToPickUp(self, interactable : int, player : int) -> None:
@@ -234,24 +237,23 @@ class GameLogic:
 
     def __sendUpdates(self) -> None: 
         for msg in self.updateQueue:
+            outputLn(f"{msg}")
             self.port.send(msg)
         self.updateQueue = []
 
     def __run(self) -> None:
-        # while self.isRunning:
         outputLn("at top of running loop")
         # TODO:: Self.inbox is ending unexpectedly when sent message
         for msg in self.inbox:
             outputLn("in __updateModel")
+            self.__sendUpdates()
             self.__updateModel(msg)
             self.runLogic()
-            self.__sendUpdates() 
-            # if not self.isRunning:
-            #     return
         outputLn("Finished Running")
 
     def __queueMessage(self, command : str, info : dict):
         self.updateQueue.append((Atom(command), info))
+
 
 
 GameLogic()

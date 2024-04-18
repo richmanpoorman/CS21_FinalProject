@@ -12,7 +12,7 @@ all: client_server.beam
 	erlc $<
 
 server: client_server.beam 
-	(echo "client_server:server_start($(ROOM))."; cat) | erl -sname $(SNAME) -setcookie $(COOKIE)
+	(echo "client_server:server_start($(ROOM))."; cat; echo "client_server:server_done($(ROOM)).") | erl -sname $(SNAME) -setcookie $(COOKIE)
 
 client: client_server.beam 
 	@echo "client_server:client_start('$(SNAME)@$(HOST)', $(ROOM))." \

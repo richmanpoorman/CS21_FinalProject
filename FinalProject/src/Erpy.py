@@ -23,7 +23,9 @@ def _port_gen() -> Generator[None, Term, None]:
         outputLn("In Port Gen")
         term = codec.encode((yield))
         outputLn("In port gen with term: " + str(term))
-        sys.stdout.buffer.write(struct.pack("!I", len(term)))
+        binary = struct.pack("!I", len(term))
+        outputLn("Binary: " + str(binary))
+        sys.stdout.buffer.write(binary)
         sys.stdout.buffer.write(term)
 
 def stdio_port_connection() -> (

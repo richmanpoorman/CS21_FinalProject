@@ -1,3 +1,5 @@
+environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
 from Display import Display
 from InputListener import InputListener
 from Board import Board
@@ -17,8 +19,9 @@ from term import Atom
 
 from sys import stdout
 from os import environ 
-environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
 import pygame as py
+import numpy as np
 
 
 from TestTools import outputLn, outputInit
@@ -32,7 +35,6 @@ class ClientRunner:
         self.serverIdMap   = dict() 
         self.display       = Display() 
         self.inputListener = InputListener() 
-        self.board         = Board()
 
         self.isRunning = True
 
@@ -88,41 +90,12 @@ class ClientRunner:
         outputLn("Received command: " + command)
         match command:
             case "clock":
-                # outputLn("client clock signal received")
                 self.sendInputs()
-                self.__updateBoard()
-            case "add_wall":
-                wall = Wall() 
-                serverId = data["id"]
-                position = data["position"]
-                self.__addObject(wall, serverId, position)
-            case "add_player":
-                player = Player() 
-                serverId = data["id"]
-                position = data["position"]
-                self.__addObject(player, serverId, position)
-            case "add_ghost":
-                ghost = Ghost() 
-                serverId = data["id"]
-                position = data["position"]
-                self.__addObject(ghost, serverId, position)
-            case "add_pellet":
-                pellet = Pellet() 
-                serverId = data["id"]
-                position = data["position"]
-                self.__addObject(pellet, serverId, position)
-            case "add_power_pellet":
-                powerPellet = PowerPellet()
-                serverId = data["id"]
-                position = data["position"]
-                self.__addObject(powerPellet, serverId, position)
-            case "move_object":
-                clientId = self.__clientID(data["id"])
-                position = data["position"]
-                self.board.moveObject(clientId, position)
-            case "remove_object":
-                clientId = self.__clientID(data["id"])
-                self.board.removeObject(clientId)
+            case "display":
+                extractedData = data["data"]
+                arrData = [ [unpack(item) for item in row] 
+                                          for row in extractedData ]
+                self.display.receiveUpdate(np.array(arrData))
             case "done":
                 self.isRunning = False
 
@@ -131,19 +104,24 @@ class ClientRunner:
         if input:
             self.sendMessage(input, data)
 
-    def __addObject(self, gameObject : GameObject, serverId : int, position : tuple) -> None:
-        clientID = self.board.addObject(gameObject, position)
-        self.serverIdMap[serverId] = clientID
 
-    def __clientID(self, serverId : int) -> int:
-        return self.serverIdMap[serverId]
-
-    def __updateBoard(self):
-        self.display.receiveUpdate(self.board.getBoard())
-
+def unpack(data) -> GameObject | None:
+    name, info = data 
+    match name:
+        case "wall": 
+            return Wall.unpack(info)
+        case "player":
+            return Player.unpack(info)
+        case "ghost":
+            return Ghost.unpack(info)
+        case "pellet":
+            return Pellet.unpack(info)
+        case "powerpellet":
+            return PowerPellet.unpack(info)
+        case _:
+            return None
 
 
 py.init()
-stdout.flush()
 ClientRunner()
 py.quit()
