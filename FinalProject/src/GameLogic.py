@@ -81,6 +81,7 @@ class GameLogic:
                 self.__onJoin(pid) # need testing
                 outputLn("player join of: " + str(info))
             case "done":
+                self.__onClose() # need testing
                 outputLn("Server Done")
                 self.isRunning = False
             case "py_port":
