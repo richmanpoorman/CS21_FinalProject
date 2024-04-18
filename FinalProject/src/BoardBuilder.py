@@ -7,13 +7,13 @@ from Pellet import Pellet
 from PowerPellet import PowerPellet 
 
 class BoardBuilder:
-    def __init__(self):
+    def __init__(self, size : tuple = (10, 11)):
         '''
             Params  : None
             Purpose : Creates the board factory
             Return  : (BoardBuilder) An empty board builder
         '''
-        self.board = Board() 
+        self.board = Board(size) 
         self.idMap = {
             "wall"         : [], 
             "player"       : [],

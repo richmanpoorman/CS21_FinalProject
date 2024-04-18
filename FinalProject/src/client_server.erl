@@ -143,9 +143,11 @@ client_start(ServerNode, ServerRoom) ->
     register(client, Pid).
 
 %%% Name    : client_initialize
-%%% Purpose : 
-%%% Params  : 
-%%% Return  : 
+%%% Purpose : Starts the client thread
+%%% Params  : (str)  PythonString := The string command 
+%%%           (atom) ServerNode   := The server node to join 
+%%%           (atom) ServerRoom   := The server room on the node to join
+%%% Return  : (N/A)
 client_initalize(PythonSpawn, ServerNode, ServerRoom) ->
     Port    = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
     Server  = {ServerRoom, ServerNode}, 
