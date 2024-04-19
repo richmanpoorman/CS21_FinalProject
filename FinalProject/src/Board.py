@@ -172,8 +172,6 @@ class Board:
         if isinstance(gameObject, Interactable):
             return (True, gameObject) 
         
-        
-        outputLn("--Game Object: " + str(gameObject))
 
         return (False, gameObject)
 
@@ -216,9 +214,7 @@ class Board:
             Return  : (bool) Whether the object is the given type
         '''
 
-        outputLn("> In isObjectOfType")
         gameObject = self.getObject(objectID)
-        outputLn(":::: isObjectOfType: " + str(gameObject))
         if not gameObject:
             return False
         
