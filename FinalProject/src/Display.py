@@ -5,8 +5,10 @@ environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame as py
 from GameObject import GameObject
 import numpy as np
+import random as rand
+
 BOARD_SIZE = (10, 11)
-WINDOW_DIM = (500,500)
+WINDOW_DIM = (224* 3,288 * 3)
 class Display:
     def __init__(self, dimension : tuple[int, int] = WINDOW_DIM):
         '''
@@ -22,7 +24,6 @@ class Display:
         self.dim = dimension
         #(self.window) is the display surface that is shown on the screen 
         self.window = py.display.set_mode(self.dim)
-        self.window.fill((0,0,0)) # initalize the screen to be blank
 
     def updateDisplay(self) -> None:
 
@@ -78,7 +79,3 @@ class Display:
        self.size  = newBoard.shape
        self.updateDisplay()
        
-    
-
-
-
