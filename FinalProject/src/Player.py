@@ -4,11 +4,11 @@ from os import environ
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 from pygame import Surface
 import pygame as py
-path = "./images/pac_man_fram2.jpg"
+
 class Player(GameObject):
     UP, DOWN, LEFT, RIGHT = (0, 1), (0, -1), (-1, 0), (1, 0)
     INVINCIBLE_DURATION   = 10
-
+    path = "./images/pac_man_frame2.png"
     def __init__(self):
         # TODO:: Replace the surface with the starting image
         super().__init__(None)
@@ -29,7 +29,7 @@ class Player(GameObject):
         return self.isInvincible()
     
     def getSurface(self) -> Surface | None:
-        surface = py.image.load(path)
+        surface = py.image.load(self.path)
         return surface
     
     def pack(self) -> tuple[str, dict[str, str]]: 
