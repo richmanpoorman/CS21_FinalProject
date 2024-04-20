@@ -5,7 +5,7 @@
 
 -export([server_start/1, server_done/1, server_send_port/2, server_get_port/1, client_start/2, receive_base/0]).
 -define(INPUT_UPDATE_CLOCK, 10).
--define(DISPLAY_UPDATE_CLOCK, 60).
+-define(DISPLAY_UPDATE_CLOCK, 100).
 %%% SERVER SIDE %%%
 
 %%% Name    : server_start

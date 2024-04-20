@@ -2,6 +2,11 @@
 from os import environ 
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
+import pygame as py
+import numpy as np
+
+py.init()
+
 from Display import Display
 from InputListener import InputListener
 from Board import Board
@@ -19,8 +24,7 @@ from erpy import stdio_port_connection
 from term import Atom
 
 
-import pygame as py
-import numpy as np
+
 
 
 from TestTools import outputLn, outputInit
@@ -119,6 +123,6 @@ def unpack(data) -> GameObject | None:
             return None
 
 
-py.init()
+
 ClientRunner()
 py.quit()

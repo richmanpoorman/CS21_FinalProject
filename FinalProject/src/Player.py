@@ -9,6 +9,7 @@ class Player(GameObject):
     UP, DOWN, LEFT, RIGHT = (0, 1), (0, -1), (-1, 0), (1, 0)
     INVINCIBLE_DURATION   = 10
     path = "./images/pac_man_frame2.png"
+    playerImage = py.image.load(path)
     def __init__(self):
         # TODO:: Replace the surface with the starting image
         super().__init__(None)
@@ -28,9 +29,8 @@ class Player(GameObject):
         self.invincibleTimer -= 1
         return self.isInvincible()
     
-    def getSurface(self) -> Surface | None:
-        surface = py.image.load(self.path)
-        return surface
+    def getSurface(self) -> Surface:
+        return self.playerImage
     
     def pack(self) -> tuple[str, dict[str, str]]: 
         return ("player", {"invincible" : "True" if self.isInvincible() else "False"})

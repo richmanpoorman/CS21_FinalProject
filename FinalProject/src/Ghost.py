@@ -10,14 +10,14 @@ from TestTools import outputLn
 
 class Ghost(GameObject):
     path = "./images/ghosts.png"
+    ghostImage = py.image.load(path)
     def __init__(self):
         # TODO:: Replace the surface with the starting image
         super().__init__(None)
         
 
-    def getSurface(self) -> Surface | None:
-        surface = py.image.load(self.path)
-        return surface
+    def getSurface(self) -> Surface:
+        return self.ghostImage
     
     def pack(self) -> tuple[str, dict[str, str]]:
         return ("ghost", dict())
