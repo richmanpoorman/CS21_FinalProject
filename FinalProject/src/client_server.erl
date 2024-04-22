@@ -127,7 +127,7 @@ server_clock(LoopPid) ->
             % output_line("Clock quit"),
             ok
     after
-        ?INPUT_UPDATE_CLOCK -> client_clock(LoopPid)
+        ?DISPLAY_UPDATE_CLOCK -> client_clock(LoopPid)
     end.
 
 
