@@ -12,7 +12,7 @@ from sys import stdout
 from TestTools import outputLn, outputInit
 
 class GameRunner: 
-
+    UPDATE_TIME = 0.25
     POSITION = {
         "up"    : (-1,  0), 
         "down"  : ( 1,  0),
@@ -50,7 +50,7 @@ class GameRunner:
         while self.isRunning:
             with self.updateLock:
                 self.logic.updateBoard()
-            sleep(0.5)
+            sleep(GameRunner.UPDATE_TIME)
 
     def __run(self):
         outputLn("at top of running loop")

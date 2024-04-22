@@ -14,6 +14,8 @@ from TestTools import outputLn
 class GameProcess:
     def __init__(self, board : Board = Board(), isRandom = False):
         self.board = board
+        self.numPellets = 5
+        self.numPowerPellets = 2
         if isRandom:
             self.__makeRandomBoard()
 
@@ -26,12 +28,10 @@ class GameProcess:
         for _ in range(numGhosts):
             self.board.addObject(Ghost(), self.__getBlankSpot())
 
-        numPellets = 5 
-        for _ in range(numPellets):
+        for _ in range(self.numPellets):
             self.board.addObject(Pellet(), self.__getBlankSpot())
 
-        numPowerPellets = 2 
-        for _ in range(numPowerPellets):
+        for _ in range(self.numPowerPellets):
             self.board.addObject(PowerPellet(), self.__getBlankSpot())
 
 
@@ -147,7 +147,22 @@ class GameProcess:
         player       : Player       = self.board.getObject(playerID)
         interactable.onGet(player)
         self.board.removeObject(interactableID)
+
+        self.__checkAndSpawnPellets()
     
+
+    def __checkAndSpawnPellets(self):
+        pelletCount = len(self.board.getAllOfType(Interactable))
+        if pelletCount != 0: 
+            return 
+        
+        for _ in range(self.numPellets):
+            self.board.addObject(Pellet(), self.__getBlankSpot())
+        
+        for _ in range(self.numPowerPellets):
+            self.board.addObject(PowerPellet(), self.__getBlankSpot())
+        
+
     def __decrementInvincibility(self) -> None:
         players = self.board.getAllOfType(Player)
         for _, player in players:
