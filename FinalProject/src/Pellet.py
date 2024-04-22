@@ -7,6 +7,8 @@ from pygame import Surface
 import pygame as py
 
 class Pellet(Interactable):
+    path = "./images/pellet.png"
+    pelletImage = py.image.load(path)
     def __init__(self):
         # TODO:: Replace the surface with the starting image
         #Example for sanity purpose
@@ -17,9 +19,7 @@ class Pellet(Interactable):
         return "pellet_pickup"
     
     def getSurface(self) -> Surface | None:
-        surface = Surface((200, 200))
-        surface.fill((0, 200, 0))
-        return surface
+        return self.pelletImage
     
     def pack(self) -> tuple[str, dict[str, str]]:
         return ("pellet", dict())

@@ -2,6 +2,8 @@ from Board import Board
 from Player import Player
 from Ghost import Ghost 
 from Interactable import Interactable
+from Pellet import Pellet 
+from PowerPellet import PowerPellet
 
 from Wall import Wall
 
@@ -23,6 +25,14 @@ class GameProcess:
         numGhosts = 5 
         for _ in range(numGhosts):
             self.board.addObject(Ghost(), self.__getBlankSpot())
+
+        numPellets = 5 
+        for _ in range(numPellets):
+            self.board.addObject(Pellet(), self.__getBlankSpot())
+
+        numPowerPellets = 2 
+        for _ in range(numPowerPellets):
+            self.board.addObject(PowerPellet(), self.__getBlankSpot())
 
 
     def updateBoard(self):
