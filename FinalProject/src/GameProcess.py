@@ -44,6 +44,8 @@ class GameProcess:
         return self.board.getBoard()
 
     def playerMove(self, playerID : int, direction : tuple) -> None:
+        if not self.board.isIn(playerID):
+            return
         self.board.getObject(playerID).setDirection(direction)
 
     def __moveAllPlayers(self):
@@ -63,9 +65,9 @@ class GameProcess:
         canMove, atSpot = self.board.canMoveTo(newPos) 
         
         if canMove:
-            self.board.moveObject(playerID, newPos) 
             if atSpot:
                 self.__pickUp(atSpot, playerID)
+            self.board.moveObject(playerID, newPos) 
         else: 
             outputLn("Player sees: " + str(self.board.getObject(atSpot)))
             if self.board.isObjectOfType(atSpot, Player):
@@ -78,10 +80,9 @@ class GameProcess:
                     self.playerDie(playerID)
             elif self.board.isObjectOfType(atSpot, Ghost):
                 player : Player = self.board.getObject(playerID)
-                
                 if player.isInvincible():
-                    self.board.moveObject(playerID, newPos)
                     self.__ghostDie(atSpot)
+                    self.board.moveObject(playerID, newPos)
                 else:
                     self.playerDie(playerID)
 
@@ -145,6 +146,7 @@ class GameProcess:
         interactable : Interactable = self.board.getObject(interactableID)
         player       : Player       = self.board.getObject(playerID)
         interactable.onGet(player)
+        self.board.removeObject(interactableID)
     
     def __decrementInvincibility(self) -> None:
         pass
