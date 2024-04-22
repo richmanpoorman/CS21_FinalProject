@@ -12,10 +12,12 @@ from typing import Any
 from TestTools import outputLn
 
 class Player(GameObject):
-    UP, DOWN, LEFT, RIGHT, NEUTRAL= (-1, 0), (1, 0), (0, -1), (0, 1), (0, 0)
+    UP, DOWN, LEFT, RIGHT, NEUTRAL = (-1, 0), (1, 0), (0, -1), (0, 1), (0, 0)
     INVINCIBLE_DURATION   = 10
     path = "./images/pac_man_frame2.png"
+    invinciblePath = "./images/halo.png"
     playerImage = py.image.load(path)
+    invincibleEffect = py.image.load(invinciblePath)
     def __init__(self):
         # TODO:: Replace the surface with the starting image
         super().__init__(None)
@@ -53,7 +55,8 @@ class Player(GameObject):
 
     def getSurface(self) -> Surface:
         surface = self.playerImage.copy() 
-        outputLn(str(self.getFacing()))
+        if self.isInvincible():
+            surface.blit(self.invincibleEffect, (0, 0))
         match self.getFacing():
             case Player.UP:
                 surface = rotate(surface, 90)

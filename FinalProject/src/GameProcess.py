@@ -131,8 +131,8 @@ class GameProcess:
     def __ghostDie(self, ghostID : int) -> None:
         if not self.board.isIn(ghostID):
             return
-        
-        self.board.moveObject(ghostID, (5, 5))
+        ### TODO :: CHANGE THE GHOST SPAWN LOCATION
+        self.board.moveObject(ghostID, self.__getBlankSpot())
     
     def addPlayer(self) -> int:
         spot = self.__getBlankSpot()
