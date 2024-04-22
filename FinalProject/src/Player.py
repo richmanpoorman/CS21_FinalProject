@@ -37,6 +37,20 @@ class Player(GameObject):
         self.invincibleTimer -= 1
         return self.isInvincible()
     
+    
+    def setDirection(self, direction : tuple) -> None:
+        self.facing    = direction 
+        self.direction = direction
+    
+    def setStuck(self) -> None:
+        self.direction = self.NEUTRAL
+
+    def goingTo(self) -> tuple:
+        return self.direction 
+    
+    def getFacing(self) -> tuple: 
+        return self.facing
+
     def getSurface(self) -> Surface:
         surface = self.playerImage.copy() 
         outputLn(str(self.getFacing()))
@@ -52,19 +66,6 @@ class Player(GameObject):
             case _:
                 raise RuntimeError("No direction found")
         return surface
-    
-    def setDirection(self, direction : tuple) -> None:
-        self.facing    = direction 
-        self.direction = direction
-    
-    def setStuck(self) -> None:
-        self.direction = self.NEUTRAL
-
-    def getGoingTo(self) -> tuple:
-        return self.direction 
-    
-    def getFacing(self) -> tuple: 
-        return self.facing
 
     def pack(self) -> tuple[str, dict[str, Any]]: 
         info = {

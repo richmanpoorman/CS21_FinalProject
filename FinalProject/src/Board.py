@@ -165,15 +165,15 @@ class Board:
             Return  : ((bool, GameObject)) Whether or not the object can move 
                                            there, and the object stopping it
         '''
-        gameObject = self.__getAtID(position)
+        gameObjectID = self.__getAtID(position)
+        gameObject   = self.getAt(position)
         if not gameObject:
             return (True, None) 
         
         if isinstance(gameObject, Interactable):
-            return (True, gameObject) 
+            return (True, gameObjectID) 
         
-
-        return (False, gameObject)
+        return (False, gameObjectID)
 
     def getSize(self) -> tuple:
         '''
