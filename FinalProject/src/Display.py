@@ -29,7 +29,6 @@ class Display:
         self.dim = dimension
         
         self.boardLock = Lock()
-        self.frameCount = 
         #(self.window) is the display surface that is shown on the screen 
         self.window = py.display.set_mode(self.dim)
 
