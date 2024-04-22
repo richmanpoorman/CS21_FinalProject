@@ -149,7 +149,9 @@ class GameProcess:
         self.board.removeObject(interactableID)
     
     def __decrementInvincibility(self) -> None:
-        pass
+        players = self.board.getAllOfType(Player)
+        for _, player in players:
+            player.decrementInvincibleTimer()
     
     def __getBlankSpot(self) -> tuple[int, int]:
         possibleSpots = self.__findBlankSpots()
