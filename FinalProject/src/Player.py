@@ -12,7 +12,7 @@ from typing import Any
 from TestTools import outputLn
 
 class Player(GameObject):
-    UP, DOWN, LEFT, RIGHT, NEUTRAL = (-1, 0), (1, 0), (0, -1), (0, 1), (0, 0)
+    
     INVINCIBLE_DURATION   = 10
     path = "./images/pac_man_frame2.png"
     invinciblePath = "./images/halo.png"
@@ -22,8 +22,6 @@ class Player(GameObject):
         # TODO:: Replace the surface with the starting image
         super().__init__(None)
         self.invincibleTimer = 0
-        self.facing = Player.RIGHT
-        self.direction = Player.NEUTRAL
 
     
     def isInvincible(self) -> bool:
@@ -39,19 +37,6 @@ class Player(GameObject):
         self.invincibleTimer -= 1
         return self.isInvincible()
     
-    
-    def setDirection(self, direction : tuple) -> None:
-        self.facing    = direction 
-        self.direction = direction
-    
-    def setStuck(self) -> None:
-        self.direction = self.NEUTRAL
-
-    def goingTo(self) -> tuple:
-        return self.direction 
-    
-    def getFacing(self) -> tuple: 
-        return self.facing
 
     def getSurface(self) -> Surface:
         surface = self.playerImage.copy() 
@@ -73,8 +58,8 @@ class Player(GameObject):
     def pack(self) -> tuple[str, dict[str, Any]]: 
         info = {
             "invincible" : self.isInvincible(),
-            "facing"     : self.facing,
-            "direction"  : self.direction
+            "facing"     : self.getFacing(),
+            "direction"  : self.goingTo()
         }
         return ("player", info)
     
@@ -84,7 +69,7 @@ class Player(GameObject):
         else:
             self.removeInvincible()
 
-        self.facing    = info["facing"]
-        self.direction = info["direction"]
+        self.setFacing(info["facing"])
+        self.setDirection(info["direction"])
         
         return self

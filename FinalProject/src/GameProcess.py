@@ -46,7 +46,7 @@ class GameProcess:
     def playerMove(self, playerID : int, direction : tuple) -> None:
         if not self.board.isIn(playerID):
             return
-        self.board.getObject(playerID).setDirection(direction)
+        self.board.getObject(playerID).setGoingTo(direction)
 
     def __moveAllPlayers(self):
         players = self.board.getAllOfType(Player)
