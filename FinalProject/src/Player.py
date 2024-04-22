@@ -5,7 +5,11 @@ environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 from pygame import Surface
 import pygame as py
 
+from pygame.transform import rotate
+
 from typing import Any
+
+from TestTools import outputLn
 
 class Player(GameObject):
     UP, DOWN, LEFT, RIGHT, NEUTRAL= (-1, 0), (1, 0), (0, -1), (0, 1), (0, 0)
@@ -34,10 +38,23 @@ class Player(GameObject):
         return self.isInvincible()
     
     def getSurface(self) -> Surface:
-        return self.playerImage
+        surface = self.playerImage.copy() 
+        outputLn(str(self.getFacing()))
+        match self.getFacing():
+            case Player.UP:
+                surface = rotate(surface, 90)
+            case Player.DOWN:
+                surface = rotate(surface, -90)
+            case Player.LEFT:
+                surface = rotate(surface, 180)
+            case Player.RIGHT:
+                outputLn("I am facing right")
+            case _:
+                raise RuntimeError("No direction found")
+        return surface
     
     def setDirection(self, direction : tuple) -> None:
-        self.facing = direction 
+        self.facing    = direction 
         self.direction = direction
     
     def setStuck(self) -> None:
