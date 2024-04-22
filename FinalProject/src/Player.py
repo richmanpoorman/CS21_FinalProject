@@ -5,8 +5,10 @@ environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 from pygame import Surface
 import pygame as py
 
+from typing import Any
+
 class Player(GameObject):
-    UP, DOWN, LEFT, RIGHT = (0, 1), (0, -1), (-1, 0), (1, 0)
+    UP, DOWN, LEFT, RIGHT, NEUTRAL= (-1, 0), (1, 0), (0, -1), (0, 1), (0, 0)
     INVINCIBLE_DURATION   = 10
     path = "./images/pac_man_frame2.png"
     playerImage = py.image.load(path)
@@ -14,6 +16,8 @@ class Player(GameObject):
         # TODO:: Replace the surface with the starting image
         super().__init__(None)
         self.invincibleTimer = 0
+        self.facing = Player.RIGHT
+        self.direction = Player.NEUTRAL
 
     
     def isInvincible(self) -> bool:
@@ -32,16 +36,34 @@ class Player(GameObject):
     def getSurface(self) -> Surface:
         return self.playerImage
     
-    def pack(self) -> tuple[str, dict[str, str]]: 
-        return ("player", {"invincible" : "True" if self.isInvincible() else "False"})
+    def setDirection(self, direction : tuple) -> None:
+        self.facing = direction 
+        self.direction = direction
+    
+    def setStuck(self) -> None:
+        self.direction = self.NEUTRAL
+
+    def getGoingTo(self) -> tuple:
+        return self.direction 
+    
+    def getFacing(self) -> tuple: 
+        return self.facing
+
+    def pack(self) -> tuple[str, dict[str, Any]]: 
+        info = {
+            "invincible" : self.isInvincible(),
+            "facing"     : self.facing,
+            "direction"  : self.direction
+        }
+        return ("player", info)
     
     def unpack(self, info):
-        invincibleState = info["invincible"]
-        match invincibleState:
-            case "True":
-               self.setInvincible()
-            case "False":
-                self.removeInvincible()
-            case _:
-                pass 
+        if info["invincible"]:
+            self.setInvincible() 
+        else:
+            self.removeInvincible()
+
+        self.facing    = info["facing"]
+        self.direction = info["direction"]
+        
         return self

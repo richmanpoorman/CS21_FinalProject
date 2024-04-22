@@ -28,11 +28,22 @@ class GameProcess:
     def updateBoard(self):
         self.__moveGhosts()
         self.__decrementInvincibility()
+        self.__moveAllPlayers()
 
     def getBoard(self):
         return self.board.getBoard()
 
     def playerMove(self, playerID : int, direction : tuple) -> None:
+        self.board.getObject(playerID).setDirection(direction)
+
+    def __moveAllPlayers(self):
+        players = self.board.getAllOfType(Player)
+        for playerID, player in players:
+            direction = player.getGoingTo()
+            if direction != Player.NEUTRAL:
+                self.__playerMoveObject(playerID, direction)
+
+    def __playerMoveObject(self, playerID : int, direction : tuple):
         if not self.board.isIn(playerID):
             return
         
