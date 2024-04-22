@@ -5,7 +5,11 @@ from os import environ
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 from pygame import Surface 
 
+import pygame as py
+
 class PowerPellet(Interactable):
+    path = "./images/power-pellet.png"
+    powerPelletImage = py.image.load(path)
     def __init__(self):
         # TODO:: Replace the surface with the starting image
         super().__init__()
@@ -16,9 +20,7 @@ class PowerPellet(Interactable):
         return "set_invincible"
     
     def getSurface(self) -> Surface | None:
-        surface = Surface((200, 200))
-        surface.fill((200, 100, 0))
-        return surface
+        return self.powerPelletImage
     
 
     def pack(self) -> tuple[str, dict[str, str]]:
