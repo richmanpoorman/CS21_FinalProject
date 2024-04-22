@@ -26,6 +26,8 @@ class PacMan_Animator:
         for i in range(len(self.dir)):
             self.frames[self.dir[i]] = Animator(animations[i], obj=Player())
 
+        self.
+
     def getAsurface(self, dir:str, frame_id:int):
         obj = self.frames[dir]
         return obj.get_frame(frame_id)
