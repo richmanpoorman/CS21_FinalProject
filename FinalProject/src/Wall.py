@@ -12,6 +12,10 @@ class Wall(GameObject):
     def __init__(self):
         super().__init__(None)
 
+    @staticmethod 
+    def convertImage():
+        Wall.wallImage = Wall.wallImage.convert()
+
     def getSurface(self) -> Surface | None:
         
         return self.wallImage

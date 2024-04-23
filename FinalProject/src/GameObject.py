@@ -11,6 +11,11 @@ class GameObject:
         if surface:
             self.setSurface(surface)
 
+
+    @staticmethod 
+    def convertImage():
+        pass
+
     def getSurface(self) -> pygame.Surface: 
         return self.surface
 

@@ -24,6 +24,14 @@ class Ghost(Movable):
         super().__init__()
         self.memory = None
 
+    @staticmethod 
+    def convertImage():
+        Ghost.ghostUp    = Ghost.ghostUp.convert_alpha()
+        Ghost.ghostDown  = Ghost.ghostDown.convert_alpha()
+        Ghost.ghostLeft  = Ghost.ghostLeft.convert_alpha()
+        Ghost.ghostRight = Ghost.ghostRight.convert_alpha()
+
+
     def getSurface(self) -> Surface:
         match self.getFacing():
             case Ghost.UP:
