@@ -8,30 +8,50 @@ from PowerPellet import PowerPellet
 from Wall import Wall
 
 from random import randrange
-
+from random import choice
 from TestTools import outputLn
 
+from BoardBuilder import makeBoardFromImage
+from GhostAI import searchAndFind, moveForwardIfPossible
+
 class GameProcess:
-    def __init__(self, board : Board = Board(), isRandom = False):
-        self.board = board
-        self.numPellets = 5
-        self.numPowerPellets = 2
-        if isRandom:
+    NUM_PELLETS = 100
+    NUM_POWER_PELLETS = 10
+    NUM_GHOSTS = 10
+    def __init__(self, board : Board | None = None, isRandom = False):
+        if board:
+            self.board = board
+        elif isRandom:
+            self.board = Board()
             self.__makeRandomBoard()
+        else:
+            self.__makeDefaultBoard()
+        
+        
+    def __makeDefaultBoard(self):
+        boardPath = "./images/BoardSetup.png"
+        self.board, _ = makeBoardFromImage(boardPath)
+        for _ in range(self.NUM_GHOSTS):
+            self.board.addObject(Ghost(), self.__getBlankSpot())
+
+        for _ in range(self.NUM_PELLETS):
+            self.board.addObject(Pellet(), self.__getBlankSpot())
+
+        for _ in range(self.NUM_POWER_PELLETS):
+            self.board.addObject(PowerPellet(), self.__getBlankSpot())
 
     def __makeRandomBoard(self):
         numWalls = 20
         for _ in range(numWalls):
             self.board.addObject(Wall(), self.__getBlankSpot())
         
-        numGhosts = 5 
-        for _ in range(numGhosts):
+        for _ in range(self.NUM_GHOSTS):
             self.board.addObject(Ghost(), self.__getBlankSpot())
 
-        for _ in range(self.numPellets):
+        for _ in range(self.NUM_PELLETS):
             self.board.addObject(Pellet(), self.__getBlankSpot())
 
-        for _ in range(self.numPowerPellets):
+        for _ in range(self.NUM_POWER_PELLETS):
             self.board.addObject(PowerPellet(), self.__getBlankSpot())
 
 
@@ -112,16 +132,72 @@ class GameProcess:
                 if not player.isInvincible():
                     self.playerDie(atSpot) 
                     self.board.moveObject(ghostID, newPos)
+
+        self.board.getObject(ghostID).setFacing(direction)
     
     def __ghostAI(self, ghostID : int) -> tuple[int, int]:
         if not self.board.isIn(ghostID):
             return (0, 0)
         
-        directions = [( 0,  1),
-                      ( 1,  0),
-                      ( 0, -1),
-                      (-1,  0)]
-        return directions[randrange(0, len(directions))]
+        return moveForwardIfPossible(ghostID, self.board) # searchAndFind(ghostID, self.board)
+
+        # ghost = self.board.getObject(ghostID)
+        # face = ghost.facing
+        # row, col = self.board.getPosition(ghostID)
+        # if ghost.memory == (row, col):
+        #     ghost.memory = None
+        # elif ghost.memory:
+        #     return face
+        
+        # if not ghost.memory:
+        #     #Directions
+        #     LEFT = (0, -1)
+        #     RIGHT = (0, 1)
+        #     UP = (1, 0)
+        #     DOWN = (-1, 0)
+
+        #     def _ghost_scan(face:tuple[int, int]):
+        #         start = end = dim = 0
+        #         step = 1
+        #         seen = False
+
+        #         if face == LEFT:
+        #             start = col - 1 
+        #             dim = row
+        #             step = -1
+        #         elif face == RIGHT:
+        #             start = col + 1
+        #             end = self.board.size[1]
+        #             dim = row
+        #         elif face == UP:
+        #             start = row - 1
+        #             dim = col
+        #             step = -1
+        #         else:
+        #             dim = col
+        #             start = row + 1
+        #             end = self.board.size[0]
+
+        #         for x in range(start, end, step):
+        #             obj = self.board.getAt((dim, x))
+        #             if isinstance(obj, Player):
+        #                 seen = True
+        #                 ghost.memory = (dim, x)
+        #                 ghost.face = face
+        #                 break
+        #             elif isinstance(obj, Wall):
+        #                 break
+
+        #         if seen == False:
+        #             return choice([RIGHT, UP, LEFT, DOWN])
+                
+
+        #         return ghost.face
+            
+        
+
+        # return _ghost_scan(face)
+
     
     def playerDie(self, playerID : int) -> None:
         if not self.board.isIn(playerID):
@@ -156,10 +232,10 @@ class GameProcess:
         if pelletCount != 0: 
             return 
         
-        for _ in range(self.numPellets):
+        for _ in range(self.NUM_PELLETS):
             self.board.addObject(Pellet(), self.__getBlankSpot())
         
-        for _ in range(self.numPowerPellets):
+        for _ in range(self.NUM_POWER_PELLETS):
             self.board.addObject(PowerPellet(), self.__getBlankSpot())
         
 

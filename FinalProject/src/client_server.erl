@@ -5,7 +5,7 @@
 
 -export([server_start/1, server_done/1, server_send_port/2, server_get_port/1, client_start/2, receive_base/0]).
 -define(INPUT_UPDATE_CLOCK, 10).
--define(DISPLAY_UPDATE_CLOCK, 100).
+-define(DISPLAY_UPDATE_CLOCK, 1000).
 %%% SERVER SIDE %%%
 
 %%% Name    : server_start
@@ -127,7 +127,7 @@ server_clock(LoopPid) ->
             % output_line("Clock quit"),
             ok
     after
-        ?INPUT_UPDATE_CLOCK -> client_clock(LoopPid)
+        ?DISPLAY_UPDATE_CLOCK -> client_clock(LoopPid)
     end.
 
 

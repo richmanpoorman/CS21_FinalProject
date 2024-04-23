@@ -43,7 +43,7 @@ class GameRunner:
         #             .addWall((6, 0))\
         #             .addGhost((1, 1))\
         #             .getBoard()
-        return GameProcess(isRandom = True)
+        return GameProcess()
 
 
     def updateCycle(self):

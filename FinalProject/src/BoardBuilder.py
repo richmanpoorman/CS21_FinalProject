@@ -80,3 +80,26 @@ class BoardBuilder:
                      (dict)  The ids of all of the objects
         '''
         return self.board, self.idMap
+    
+from os import environ
+environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+import pygame as py
+
+from TestTools import outputLn
+
+def makeBoardFromImage(imagePath : str):
+   
+    image = py.image.load(imagePath)
+    w, h = image.get_width(), image.get_height()
+    boardBuilder = BoardBuilder((h, w)) 
+    for r in range(h):
+        for c in range(w):
+            match tuple(image.get_at((c, r))):
+                case (0, 0, 0, 255):
+                    outputLn("Added Wall at: " + str((r, c)))
+                    boardBuilder.addWall((r, c))
+                case color:
+                    outputLn("Found color: " + str(color))
+                    continue
+    
+    return boardBuilder.getBoard()

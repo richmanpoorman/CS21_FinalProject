@@ -14,6 +14,9 @@ class PowerPellet(Interactable):
         # TODO:: Replace the surface with the starting image
         super().__init__()
         
+    @staticmethod 
+    def convertImage():
+        PowerPellet.powerPelletImage = PowerPellet.powerPelletImage.convert()
 
     def onGet(self, player : Player) -> str:
         player.setInvincible()

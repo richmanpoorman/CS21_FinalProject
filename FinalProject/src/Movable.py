@@ -1,28 +1,28 @@
 from GameObject import GameObject 
 
+from typing import Any
+
 class Movable(GameObject):
-    
     UP, DOWN, LEFT, RIGHT, NEUTRAL = (-1, 0), (1, 0), (0, -1), (0, 1), (0, 0)
-    
+
     def __init__(self):
-        self.facing    = Movable.RIGHT
-        self.wentTo  = Movable.NEUTRAL
-    
-    def wentToReset(self):
-        self.wentTo = Movable.NEUTRAL 
-
-    def setWentTo(self, direction : tuple):
-        self.wentTo = direction
-    
-    def getWentTo(self):
-        return self.wentTo
-
-    def setFacing(self, direction : tuple):
-        self.facing = direction 
+        self.facing = Movable.RIGHT 
 
     def setGoingTo(self, direction : tuple):
         self.setFacing(direction)
-        self.setWentTo(direction)
+        
+    def setFacing(self, direction : tuple): 
+        self.facing = direction
     
     def getFacing(self) -> tuple: 
         return self.facing
+    
+    def pack(self) -> tuple[str, dict[str, Any]]:
+        info = {
+            "facing" : self.getFacing()
+        }
+        return ("movable", info)
+    
+    def unpack(self, info):
+        self.setFacing(info["facing"])
+        return self

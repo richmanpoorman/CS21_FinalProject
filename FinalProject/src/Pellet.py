@@ -18,6 +18,11 @@ class Pellet(Interactable):
     def onGet(self, player : Player) -> str:
         return "pellet_pickup"
     
+    @staticmethod 
+    def convertImage():
+        Pellet.pelletImage = Pellet.pelletImage.convert()
+
+
     def getSurface(self) -> Surface | None:
         return self.pelletImage
     

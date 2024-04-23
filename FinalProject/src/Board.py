@@ -9,7 +9,7 @@ from Wall import Wall
 from TestTools import outputLn
 
 class Board:
-    BOARD_SIZE = (10, 11)
+    BOARD_SIZE = (15, 29)
     def __init__(self, boardSize : tuple = BOARD_SIZE):
         '''
             Name    : init

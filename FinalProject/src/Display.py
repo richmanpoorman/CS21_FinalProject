@@ -4,16 +4,17 @@ environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 import pygame as py
 from GameObject import GameObject
-from Movable import Movable
 import numpy as np
 import random as rand
 from pygame.math import lerp
 
-from Board import Board
-from threading import Lock, Thread
-from pygame.time import delay, Clock
+from Wall import Wall
+from Player import Player 
+from Ghost import Ghost 
+from Pellet import Pellet 
+from PowerPellet import PowerPellet 
 
-from TestTools import outputLn
+from Board import Board
 
 SCALE_FACTOR = 50
 WINDOW_DIM = (Board.BOARD_SIZE[1] * SCALE_FACTOR, Board.BOARD_SIZE[0] * SCALE_FACTOR)
@@ -31,9 +32,17 @@ class Display:
         self.board = np.empty(Board.BOARD_SIZE, dtype=GameObject)
         self.size = Board.BOARD_SIZE
         self.dim = dimension
-        self.clock = Clock()
+        
         #(self.window) is the display surface that is shown on the screen 
         self.window = py.display.set_mode(self.dim)
+        self.bg     = None
+
+        # Converts the image to optimize blitting to the window
+        Wall.convertImage() 
+        Player.convertImage() 
+        Ghost.convertImage() 
+        Pellet.convertImage() 
+        PowerPellet.convertImage()
 
     def updateDisplay(self) -> None:
 
@@ -43,61 +52,56 @@ class Display:
             Purpose : Update the display window with all the gameObjects in the board
             Return  : N/A
         '''
-        self.__drawScreen()
-        steps = 10
-        totalTime = 0.1
-        framerate = round(steps / totalTime)
-        for i in range(steps):
-            self.clock.tick(framerate)
-            weight = i / steps 
-            self.__drawScreen(weight)
-            delay(10)
-        self.__drawScreen(1)
-
-    def __drawScreen(self, interpolationWeight : float = 1) -> None:
         self.window.fill((0, 0, 0))
         rows, cols = self.size
         dim_col, dim_row = WINDOW_DIM
         #Get the size of any surface in each cell of the display window
         cell_width = (dim_col // cols)
         cell_height = (dim_row // rows)
+        if not self.bg:
+            self.__makeBG() 
+        
+        window = self.bg.copy()
 
         for r in range(rows):
             for c in range(cols):
                 obj = self.board[r][c]
-                if not obj: 
-                    continue 
-
-                if isinstance(obj, Movable):
-                    self.__drawMovable(obj, interpolationWeight, r, c, cell_width, cell_height)
-                else: 
-                    self.__drawImmovable(obj, r, c, cell_width, cell_height)
-        
+                if not obj and not isinstance(obj, Wall): # Checks that it is not none
+                    continue
+                suf = obj.getSurface()
+                #scale the sufarce gotten from the board
+                newSuf = py.transform.scale(suf, (cell_width, cell_height))
+                # calculate the new postion of the surface in the bigger display window
+                x = c * cell_width
+                y = r * cell_height
+                # Draw the upscaled surfaces onto the screen window
+                window.blit(newSuf, (x , y))
+        self.window.blit(window, (0, 0))
         py.display.update()
 
-    def __drawImmovable(self, gameObject : GameObject, r : int, c : int, cell_width : int, cell_height : int):
-        suf = gameObject.getSurface()
-        #scale the sufarce gotten from the board
-        newSuf = py.transform.scale(suf, (cell_width, cell_height))
-        # calculate the new postion of the surface in the bigger display window
-        x = (c) * cell_width
-        y = (r) * cell_height
-        # Draw the upscaled surfaces onto the screen window
-        self.window.blit(newSuf, (x , y))
+    
+    def __makeBG(self):
+        rows, cols = self.size
+        dim_col, dim_row = WINDOW_DIM
+        #Get the size of any surface in each cell of the display window
+        cell_width = (dim_col // cols)
+        cell_height = (dim_row // rows)
 
-    def __drawMovable(self, movable : Movable, interpolationWeight : float, r : int, c : int, cell_width : int, cell_height : int):
-        suf = movable.getSurface()
-        #scale the sufarce gotten from the board
-        newSuf = py.transform.scale(suf, (cell_width, cell_height))
-        # calculate the new postion of the surface in the bigger display window
-        dirR, dirC = movable.getWentTo()
-        dx = lerp(-dirC, 0, interpolationWeight)
-        dy = lerp(-dirR, 0, interpolationWeight)
-        outputLn(str(dx) + ", " + str(dy))
-        x = (c + dx) * cell_width
-        y = (r + dy) * cell_height
-        # Draw the upscaled surfaces onto the screen window
-        self.window.blit(newSuf, (x , y))
+        self.bg = py.Surface(WINDOW_DIM)
+
+        for r in range(rows):
+            for c in range(cols):
+                obj = self.board[r][c]
+                if not obj or not isinstance(obj, Wall): # Checks that it is not none
+                    continue
+                suf = obj.getSurface()
+                #scale the sufarce gotten from the board
+                newSuf = py.transform.scale(suf, (cell_width, cell_height))
+                # calculate the new postion of the surface in the bigger display window
+                x = c * cell_width
+                y = r * cell_height
+                # Draw the upscaled surfaces onto the screen window
+                self.bg.blit(newSuf, (x , y))
 
     def display_window(self):
         '''
