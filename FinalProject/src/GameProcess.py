@@ -112,6 +112,8 @@ class GameProcess:
                 if not player.isInvincible():
                     self.playerDie(atSpot) 
                     self.board.moveObject(ghostID, newPos)
+
+        self.board.getObject(ghostID).setFacing(direction)
     
     def __ghostAI(self, ghostID : int) -> tuple[int, int]:
         if not self.board.isIn(ghostID):
