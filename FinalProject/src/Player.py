@@ -20,7 +20,7 @@ class Player(Movable):
     invincibleEffect = py.image.load(invinciblePath)
     def __init__(self):
         # TODO:: Replace the surface with the starting image
-        super().__init__(None)
+        super().__init__()
         self.invincibleTimer = 0
 
     
@@ -50,7 +50,7 @@ class Player(Movable):
             case Player.LEFT:
                 surface = rotate(surface, 180)
             case Player.RIGHT:
-                outputLn("I am facing right")
+                pass
             case _:
                 raise RuntimeError("No direction found")
         return surface
@@ -59,9 +59,11 @@ class Player(Movable):
         info = {
             "invincible" : self.isInvincible(),
             "facing"     : self.getFacing(),
-            "direction"  : self.goingTo()
+            "wentTo"     : self.getWentTo()
         }
+        
         # self.noMovement()
+        self.wentToReset()
         return ("player", info)
     
     def unpack(self, info):
@@ -71,6 +73,6 @@ class Player(Movable):
             self.removeInvincible()
 
         self.setFacing(info["facing"])
-        self.setDirection(info["direction"])
+        self.setWentTo(info["wentTo"])
         
         return self

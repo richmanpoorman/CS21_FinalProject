@@ -6,23 +6,23 @@ class Movable(GameObject):
     
     def __init__(self):
         self.facing    = Movable.RIGHT
-        self.direction = Movable.NEUTRAL
+        self.wentTo  = Movable.NEUTRAL
     
+    def wentToReset(self):
+        self.wentTo = Movable.NEUTRAL 
+
+    def setWentTo(self, direction : tuple):
+        self.wentTo = direction
+    
+    def getWentTo(self):
+        return self.wentTo
+
     def setFacing(self, direction : tuple):
         self.facing = direction 
 
-    def setDirection(self, direction : tuple) -> None:
-        self.direction = direction
-
     def setGoingTo(self, direction : tuple):
         self.setFacing(direction)
-        self.setDirection(direction)
-    
-    def noMovement(self) -> None:
-        self.direction = self.NEUTRAL
-
-    def goingTo(self) -> tuple:
-        return self.direction 
+        self.setWentTo(direction)
     
     def getFacing(self) -> tuple: 
         return self.facing

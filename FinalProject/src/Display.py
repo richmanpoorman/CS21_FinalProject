@@ -13,6 +13,8 @@ from Board import Board
 from threading import Lock, Thread
 from pygame.time import delay, Clock
 
+from TestTools import outputLn
+
 SCALE_FACTOR = 50
 WINDOW_DIM = (Board.BOARD_SIZE[1] * SCALE_FACTOR, Board.BOARD_SIZE[0] * SCALE_FACTOR)
 class Display:
@@ -42,14 +44,15 @@ class Display:
             Return  : N/A
         '''
         self.__drawScreen()
-        # steps = 4
-        # # totalTime = 0.1
-        # # framerate = round(steps / totalTime)
-        # for i in range(steps):
-        #     self.clock.tick()
-        #     weight = i / steps 
-        #     self.__drawScreen(weight)
-        # self.__drawScreen(1)
+        steps = 10
+        totalTime = 0.1
+        framerate = round(steps / totalTime)
+        for i in range(steps):
+            self.clock.tick(framerate)
+            weight = i / steps 
+            self.__drawScreen(weight)
+            delay(10)
+        self.__drawScreen(1)
 
     def __drawScreen(self, interpolationWeight : float = 1) -> None:
         self.window.fill((0, 0, 0))
@@ -67,20 +70,8 @@ class Display:
 
                 if isinstance(obj, Movable):
                     self.__drawMovable(obj, interpolationWeight, r, c, cell_width, cell_height)
-                # obj = self.board[r][c]
-                # if not obj: # Checks that it is not none
-                #     continue
-                # suf = obj.getSurface()
-                # #scale the sufarce gotten from the board
-                # newSuf = py.transform.scale(suf, (cell_width, cell_height))
-                # # calculate the new postion of the surface in the bigger display window
-                # directionX, directionY = obj.goingTo()
-                # dX = lerp(directionX, 0, interpolationWeight)
-                # dY = lerp(directionY, 0, interpolationWeight)
-                # x = (c + dX) * cell_width
-                # y = (r + dY) * cell_height
-                # # Draw the upscaled surfaces onto the screen window
-                # self.window.blit(newSuf, (x , y))
+                else: 
+                    self.__drawImmovable(obj, r, c, cell_width, cell_height)
         
         py.display.update()
 
@@ -99,9 +90,10 @@ class Display:
         #scale the sufarce gotten from the board
         newSuf = py.transform.scale(suf, (cell_width, cell_height))
         # calculate the new postion of the surface in the bigger display window
-        dirR, dirC = movable.goingTo()
+        dirR, dirC = movable.getWentTo()
         dx = lerp(-dirC, 0, interpolationWeight)
         dy = lerp(-dirR, 0, interpolationWeight)
+        outputLn(str(dx) + ", " + str(dy))
         x = (c + dx) * cell_width
         y = (r + dy) * cell_height
         # Draw the upscaled surfaces onto the screen window

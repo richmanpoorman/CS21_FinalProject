@@ -51,7 +51,7 @@ class GameProcess:
     def __moveAllPlayers(self):
         players = self.board.getAllOfType(Player)
         for playerID, player in players:
-            direction = player.goingTo()
+            direction = player.getFacing()
             if direction != Player.NEUTRAL:
                 self.__playerMoveObject(playerID, direction)
 
