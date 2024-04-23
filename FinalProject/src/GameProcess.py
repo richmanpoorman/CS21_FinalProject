@@ -8,7 +8,7 @@ from PowerPellet import PowerPellet
 from Wall import Wall
 
 from random import randrange
-
+from random import choice
 from TestTools import outputLn
 
 class GameProcess:
@@ -119,11 +119,63 @@ class GameProcess:
         if not self.board.isIn(ghostID):
             return (0, 0)
         
-        directions = [( 0,  1),
-                      ( 1,  0),
-                      ( 0, -1),
-                      (-1,  0)]
-        return directions[randrange(0, len(directions))]
+        ghost = self.board.getObject(ghostID)
+        face = ghost.facing
+        row, col = self.board.getPosition(ghostID)
+        if ghost.memory == (row, col):
+            ghost.memory = None
+        elif ghost.memory:
+            return face
+        
+        if not ghost.memory:
+            #Directions
+            LEFT = (0, -1)
+            RIGHT = (0, 1)
+            UP = (1, 0)
+            DOWN = (-1, 0)
+
+            def _ghost_scan(face:tuple[int, int]):
+                start = end = dim = 0
+                step = 1
+                seen = False
+
+                if face == LEFT:
+                    start = col - 1 
+                    dim = row
+                    step = -1
+                elif face == RIGHT:
+                    start = col + 1
+                    end = self.board.size[1]
+                    dim = row
+                elif face == UP:
+                    start = row - 1
+                    dim = col
+                    step = -1
+                else:
+                    dim = col
+                    start = row + 1
+                    end = self.board.size[0]
+
+                for x in range(start, end, step):
+                    obj = self.board.getAt((dim, x))
+                    if isinstance(obj, Player):
+                        seen = True
+                        ghost.memory = (dim, x)
+                        ghost.face = face
+                        break
+                    elif isinstance(obj, Wall):
+                        break
+
+                if seen == False:
+                    return choice([RIGHT, UP, LEFT, DOWN])
+                
+
+                return ghost.face
+            
+        
+
+        return _ghost_scan(face)
+
     
     def playerDie(self, playerID : int) -> None:
         if not self.board.isIn(playerID):
