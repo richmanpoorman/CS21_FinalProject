@@ -56,10 +56,10 @@ class Player(Movable):
         return surface
 
     def pack(self) -> tuple[str, dict[str, Any]]: 
+        _, movableInfo = super().pack()
         info = {
             "invincible" : self.isInvincible(),
-            "facing"     : self.getFacing(),
-            "direction"  : self.goingTo()
+            "movable"    : movableInfo
         }
         return ("player", info)
     
@@ -69,7 +69,6 @@ class Player(Movable):
         else:
             self.removeInvincible()
 
-        self.setFacing(info["facing"])
-        self.setDirection(info["direction"])
+        super().unpack(info["movable"])
         
         return self

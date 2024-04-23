@@ -1,4 +1,4 @@
-from GameObject import GameObject
+from Movable import Movable
 from Player import Player
 import pygame as py
 from os import environ 
@@ -8,8 +8,8 @@ from random import randrange
 from typing import Any
 from TestTools import outputLn
 
-class Ghost(GameObject):
-    UP, DOWN, LEFT, RIGHT, NEUTRAL= (-1, 0), (1, 0), (0, -1), (0, 1), (0, 0)
+class Ghost(Movable):
+    
 
     pathUp    = "./images/ghost/ghostUp.png"
     pathDown  = "./images/ghost/ghostDown.png"
@@ -21,23 +21,8 @@ class Ghost(GameObject):
     ghostRight = py.image.load(pathRight)
     def __init__(self):
         # TODO:: Replace the surface with the starting image
-        super().__init__(None)
-        self.facing = Ghost.RIGHT
-        self.direction = Ghost.NEUTRAL
+        super().__init__()
         self.memory = None
-
-    def setDirection(self, direction : tuple) -> None:
-        self.facing    = direction 
-        self.direction = direction
-    
-    def setStuck(self) -> None:
-        self.direction = self.NEUTRAL
-
-    def goingTo(self) -> tuple:
-        return self.direction 
-    
-    def getFacing(self) -> tuple: 
-        return self.facing
 
     def getSurface(self) -> Surface:
         match self.getFacing():
@@ -53,13 +38,12 @@ class Ghost(GameObject):
                 return self.ghostRight
     
     def pack(self) -> tuple[str, dict[str, Any]]:
+        _, movableInfo = super().pack()
         info = {
-            "facing"    : self.getFacing(),
-            "direction" : self.goingTo()
+            "movable" : movableInfo
         }
         return ("ghost", info)
     
     def unpack(self, info):
-        self.setDirection(info["direction"])
-        self.setFacing(info["facing"])
+        super().unpack(info["movable"])
         return self

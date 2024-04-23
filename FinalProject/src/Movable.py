@@ -7,6 +7,9 @@ class Movable(GameObject):
 
     def __init__(self):
         self.facing = Movable.RIGHT 
+
+    def setGoingTo(self, direction : tuple):
+        self.setFacing(direction)
         
     def setFacing(self, direction : tuple): 
         self.facing = direction
