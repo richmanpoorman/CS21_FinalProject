@@ -8,6 +8,7 @@ import numpy as np
 import random as rand
 from pygame.math import lerp
 
+from Wall import Wall
 from Board import Board
 
 SCALE_FACTOR = 25
@@ -62,6 +63,7 @@ class Display:
         py.display.update()
 
     
+
 
     def display_window(self):
         '''
