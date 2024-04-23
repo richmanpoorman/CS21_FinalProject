@@ -11,27 +11,46 @@ from random import randrange
 from random import choice
 from TestTools import outputLn
 
+from BoardBuilder import makeBoardFromImage
+
 class GameProcess:
-    def __init__(self, board : Board = Board(), isRandom = False):
-        self.board = board
-        self.numPellets = 5
-        self.numPowerPellets = 2
-        if isRandom:
+    NUM_PELLETS = 100
+    NUM_POWER_PELLETS = 10
+    NUM_GHOSTS = 10
+    def __init__(self, board : Board | None = None, isRandom = False):
+        if board:
+            self.board = board
+        elif isRandom:
+            self.board = Board()
             self.__makeRandomBoard()
+        else:
+            self.__makeDefaultBoard()
+        
+        
+    def __makeDefaultBoard(self):
+        boardPath = "./images/BoardSetup.png"
+        self.board, _ = makeBoardFromImage(boardPath)
+        for _ in range(self.NUM_GHOSTS):
+            self.board.addObject(Ghost(), self.__getBlankSpot())
+
+        for _ in range(self.NUM_PELLETS):
+            self.board.addObject(Pellet(), self.__getBlankSpot())
+
+        for _ in range(self.NUM_POWER_PELLETS):
+            self.board.addObject(PowerPellet(), self.__getBlankSpot())
 
     def __makeRandomBoard(self):
         numWalls = 20
         for _ in range(numWalls):
             self.board.addObject(Wall(), self.__getBlankSpot())
         
-        numGhosts = 5 
-        for _ in range(numGhosts):
+        for _ in range(self.NUM_GHOSTS):
             self.board.addObject(Ghost(), self.__getBlankSpot())
 
-        for _ in range(self.numPellets):
+        for _ in range(self.NUM_PELLETS):
             self.board.addObject(Pellet(), self.__getBlankSpot())
 
-        for _ in range(self.numPowerPellets):
+        for _ in range(self.NUM_POWER_PELLETS):
             self.board.addObject(PowerPellet(), self.__getBlankSpot())
 
 
@@ -210,10 +229,10 @@ class GameProcess:
         if pelletCount != 0: 
             return 
         
-        for _ in range(self.numPellets):
+        for _ in range(self.NUM_PELLETS):
             self.board.addObject(Pellet(), self.__getBlankSpot())
         
-        for _ in range(self.numPowerPellets):
+        for _ in range(self.NUM_POWER_PELLETS):
             self.board.addObject(PowerPellet(), self.__getBlankSpot())
         
 

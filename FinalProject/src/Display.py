@@ -10,7 +10,7 @@ from pygame.math import lerp
 
 from Board import Board
 
-SCALE_FACTOR = 50
+SCALE_FACTOR = 25
 WINDOW_DIM = (Board.BOARD_SIZE[1] * SCALE_FACTOR, Board.BOARD_SIZE[0] * SCALE_FACTOR)
 class Display:
     DOWNTIME = 0.25
