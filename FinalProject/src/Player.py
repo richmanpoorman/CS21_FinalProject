@@ -1,4 +1,4 @@
-from GameObject import GameObject
+from Movable import Movable
 
 from os import environ 
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
@@ -11,7 +11,7 @@ from typing import Any
 
 from TestTools import outputLn
 
-class Player(GameObject):
+class Player(Movable):
     
     INVINCIBLE_DURATION   = 10
     path = "./images/pac_man_frame2.png"
@@ -20,7 +20,7 @@ class Player(GameObject):
     invincibleEffect = py.image.load(invinciblePath)
     def __init__(self):
         # TODO:: Replace the surface with the starting image
-        super().__init__(None)
+        super().__init__()
         self.invincibleTimer = 0
 
     
