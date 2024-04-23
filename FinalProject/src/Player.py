@@ -1,4 +1,4 @@
-from GameObject import GameObject
+from Movable import Movable
 
 from os import environ 
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
@@ -11,7 +11,7 @@ from typing import Any
 
 from TestTools import outputLn
 
-class Player(GameObject):
+class Player(Movable):
     
     INVINCIBLE_DURATION   = 10
     path = "./images/pac_man_frame2.png"
@@ -61,6 +61,7 @@ class Player(GameObject):
             "facing"     : self.getFacing(),
             "direction"  : self.goingTo()
         }
+        # self.noMovement()
         return ("player", info)
     
     def unpack(self, info):
