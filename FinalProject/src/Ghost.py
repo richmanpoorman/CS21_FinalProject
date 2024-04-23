@@ -24,6 +24,7 @@ class Ghost(GameObject):
         super().__init__(None)
         self.facing = Ghost.RIGHT
         self.direction = Ghost.NEUTRAL
+        self.memory = None
 
     def setDirection(self, direction : tuple) -> None:
         self.facing    = direction 
