@@ -2,6 +2,9 @@
 from os import environ 
 environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame
+
+from typing import Any
+
 class GameObject:
     UP, DOWN, LEFT, RIGHT, NEUTRAL = (-1, 0), (1, 0), (0, -1), (0, 1), (0, 0)
     def __init__(self, surface : pygame.Surface | None = None):
@@ -35,12 +38,12 @@ class GameObject:
     def setSurface(self, surface : pygame.Surface) -> None:
         self.surface = surface
 
-    def pack(self) -> tuple[str, dict[str, str]]: 
+    def pack(self) -> tuple[str, dict[str, Any]]: 
         return ("", dict())
     
-    def unpack(self, data : dict[str, str]):
+    def unpack(self, data : dict[str, Any]):
         return self
 
     @staticmethod
-    def defaultPack() -> tuple[str, dict[str, str]]:
+    def defaultPack() -> tuple[str, dict[str, Any]]:
         return ("", dict())
