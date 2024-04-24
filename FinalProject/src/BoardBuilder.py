@@ -96,10 +96,8 @@ def makeBoardFromImage(imagePath : str):
         for c in range(w):
             match tuple(image.get_at((c, r))):
                 case (0, 0, 0, 255):
-                    outputLn("Added Wall at: " + str((r, c)))
                     boardBuilder.addWall((r, c))
                 case color:
-                    outputLn("Found color: " + str(color))
                     continue
     
     return boardBuilder.getBoard()

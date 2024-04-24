@@ -53,7 +53,6 @@ class GameRunner:
             sleep(GameRunner.UPDATE_TIME)
 
     def __run(self):
-        outputLn("at top of running loop")
         for msg in self.inbox:
             with self.updateLock:
                 self.__receiveMessage(msg)
@@ -81,12 +80,11 @@ class GameRunner:
                 direction = GameRunner.POSITION[directionName]
                 self.logic.playerMove(playerID, direction)
                 # self.__onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]]) # need testing
-                outputLn("input of: " + str(info))
+                outputLn("Server Recieved input of: " + str(info))
             case "player_join":
                 playerID = self.logic.addPlayer()
                 self.playerIDs[pid] = playerID
                 outputLn("player join of: " + str(info))
-                outputLn(f"{self.logic.getBoard()}")
             case "done":
                 self.__endServer()
                 outputLn("Server Done")
@@ -109,5 +107,6 @@ class GameRunner:
 
 
 stdout.flush()
+outputInit()
 outputInit()
 GameRunner() 

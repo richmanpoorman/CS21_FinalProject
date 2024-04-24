@@ -66,7 +66,7 @@ class Player(Movable):
             case Player.LEFT:
                 surface = rotate(surface, 180)
             case Player.RIGHT:
-                outputLn("I am facing right")
+                pass
             case _:
                 raise RuntimeError("No direction found")
             

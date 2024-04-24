@@ -89,7 +89,7 @@ class GameProcess:
                 self.__pickUp(atSpot, playerID)
             self.board.moveObject(playerID, newPos) 
         else: 
-            outputLn("Player sees: " + str(self.board.getObject(atSpot)))
+            # outputLn("Player sees: " + str(self.board.getObject(atSpot)))
             if self.board.isObjectOfType(atSpot, Player):
                 p1 : Player = self.board.getObject(playerID)
                 p2 : Player = self.board.getObject(atSpot)

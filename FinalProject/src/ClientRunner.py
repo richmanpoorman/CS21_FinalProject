@@ -72,7 +72,6 @@ class ClientRunner:
         outputLn("Client Message Send: " + command + " : " + str(info))
         match command:
             case "input":
-                outputLn("Client sending input")
                 message = (Atom("input"), info)
                 self.port.send(message)
             case "player_join":

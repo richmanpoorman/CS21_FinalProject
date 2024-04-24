@@ -5,7 +5,7 @@
 
 -export([server_start/2, server_done/1, server_send_port/2, server_get_port/1, client_start/3, receive_base/0]).
 -define(INPUT_UPDATE_CLOCK, 10).
--define(DISPLAY_UPDATE_CLOCK, 1000).
+-define(DISPLAY_UPDATE_CLOCK, 100).
 %%% SERVER SIDE %%%
 
 %%% Name    : server_start
@@ -49,7 +49,9 @@ server_initialize(PythonSpawn, BaseThread) ->
 server_loop(State) -> 
     receive
         {__Port, {data, EncodedData}} -> 
+            % output_line("+++GOT SERVER PORT RECEPTION+++"),
             {Command, Data} = binary_to_term(EncodedData),
+            % output_format("+ Erlang server sees command: ~p", [Command]),
             % output_format("received command: ~p", [Command]),
             NewState = server_send(Command, Data, State),
             case Command of 
@@ -127,7 +129,7 @@ server_clock(LoopPid) ->
             % output_line("Clock quit"),
             ok
     after
-        ?DISPLAY_UPDATE_CLOCK -> client_clock(LoopPid)
+        ?DISPLAY_UPDATE_CLOCK -> server_clock(LoopPid)
     end.
 
 
@@ -198,9 +200,9 @@ client_initalize(PythonSpawn, ServerNode, ServerRoom, BaseThread) ->
 client_loop(State) -> 
     receive
         {__Port, {data, EncodedData}} -> 
-            output_line("---GOT PORT RECEPTION---"),
+            output_line("---GOT CLIENT PORT RECEPTION---"),
             {Command, Data} = binary_to_term(EncodedData),
-            output_format("Erlang sees command: ~p", [Command]),
+            output_format("- Erlang client sees command: ~p", [Command]),
             NewState = client_send(Command, Data, State),
             case Command of
                 quit -> 
