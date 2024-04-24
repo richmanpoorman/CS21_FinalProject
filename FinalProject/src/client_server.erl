@@ -3,7 +3,7 @@
 -record(server_state, {port, players, clock, baseThread}).
 -record(user_state  , {port, server, clock, baseThread}).
 
--export([server_start/1, server_done/1, server_send_port/2, server_get_port/1, client_start/2, receive_base/0]).
+-export([server_start/2, server_done/1, server_send_port/2, server_get_port/1, client_start/3, receive_base/0]).
 -define(INPUT_UPDATE_CLOCK, 10).
 -define(DISPLAY_UPDATE_CLOCK, 1000).
 %%% SERVER SIDE %%%
@@ -12,8 +12,8 @@
 %%% Purpose : Starts the server which hosts the game logic 
 %%% Params  : (atom) ServerName := The name of the server to start 
 %%% Return  : (bool) If the server was able to start or not
-server_start(ServerName) -> 
-    PythonSpawn = "python -u ../src/GameRunner.py",
+server_start(ServerName, PythonImp) -> 
+    PythonSpawn = PythonImp ++ " -u ../src/GameRunner.py",
     BaseThread  = self(),
     register(ServerName, spawn_link(fun () -> server_initialize(PythonSpawn, BaseThread) end)),
     output_line("Server Done").
@@ -164,9 +164,9 @@ server_get_port(ServerName) ->
 %%% Params  : (atom) The name of the server node
 %%%           (atom) The room of the server on the server node
 %%% Return  : (bool) True if the client successfully starts
-client_start(ServerNode, ServerRoom) -> 
+client_start(ServerNode, ServerRoom, PythonImp) -> 
     output_line("client start"),
-    PythonSpawn = "python -u ../src/ClientRunner.py",
+    PythonSpawn = PythonImp ++ " -u ../src/ClientRunner.py",
     BaseThread  = self(),
     % Pid = spawn_link(fun () -> client_initalize(PythonSpawn, ServerNode, ServerRoom, BaseThread) end),
     % register(client, Pid).
