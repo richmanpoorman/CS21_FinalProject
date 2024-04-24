@@ -7,4 +7,6 @@ echo 'Player name (atom): '
 
 read playerName 
 
+make dependencies PYTHON3=$python
+
 make client HOST=$hostComputer PYTHON3=$python CLIENT=$playerName
