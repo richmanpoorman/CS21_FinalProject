@@ -16,7 +16,7 @@ from PowerPellet import PowerPellet
 
 from Board import Board
 
-SCALE_FACTOR = 50
+SCALE_FACTOR = 20
 WINDOW_DIM = (Board.BOARD_SIZE[1] * SCALE_FACTOR, Board.BOARD_SIZE[0] * SCALE_FACTOR)
 class Display:
     DOWNTIME = 0.25

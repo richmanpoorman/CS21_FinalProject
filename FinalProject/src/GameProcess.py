@@ -15,9 +15,9 @@ from BoardBuilder import makeBoardFromImage
 from GhostAI import searchAndFind, moveForwardIfPossible
 
 class GameProcess:
-    NUM_PELLETS = 100
-    NUM_POWER_PELLETS = 10
-    NUM_GHOSTS = 10
+    NUM_PELLETS = 80
+    NUM_POWER_PELLETS = 20
+    NUM_GHOSTS = 12
     def __init__(self, board : Board | None = None, isRandom = False):
         self.timer    = 0
         if board:
@@ -30,7 +30,7 @@ class GameProcess:
         
         
     def __makeDefaultBoard(self):
-        boardPath = "./images/BoardSetup.png"
+        boardPath = "./images/BoardSetup2.png"
         self.board, _ = makeBoardFromImage(boardPath)
         for _ in range(self.NUM_GHOSTS):
             self.board.addObject(Ghost(), self.__getBlankSpot())
