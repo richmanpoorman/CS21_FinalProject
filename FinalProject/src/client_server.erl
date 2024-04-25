@@ -6,6 +6,7 @@
 -export([server_start/2, server_done/1, server_send_port/2, server_get_port/1, client_start/3, receive_base/0]).
 -define(INPUT_UPDATE_CLOCK, 10).
 -define(DISPLAY_UPDATE_CLOCK, 100).
+-define(SHOULD_PRINT, false).
 %%% SERVER SIDE %%%
 
 %%% Name    : server_start
@@ -324,4 +325,8 @@ output_line(Msg) ->
 %%%           (list) Param := Parameters to substitute in
 %%% Return  : (N/A)
 output_format(Msg, Param) -> 
-    file:write_file("Test.txt", io_lib:fwrite(Msg ++ "\n", Param), [append]).
+    case ?SHOULD_PRINT of
+        true -> 
+            file:write_file("Test.txt", io_lib:fwrite(Msg ++ "\n", Param), [append]);
+        _ -> ok 
+    end.
