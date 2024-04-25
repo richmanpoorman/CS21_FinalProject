@@ -19,6 +19,7 @@ class GameProcess:
     NUM_POWER_PELLETS = 10
     NUM_GHOSTS = 10
     def __init__(self, board : Board | None = None, isRandom = False):
+        self.timer    = 0
         if board:
             self.board = board
         elif isRandom:
@@ -56,9 +57,14 @@ class GameProcess:
 
 
     def updateBoard(self):
-        self.__moveGhosts()
-        self.__decrementInvincibility()
-        self.__moveAllPlayers()
+        if self.timer % 3 == 0:
+            self.__moveGhosts()
+        
+        if self.timer % 2 == 0:
+            self.__moveAllPlayers()
+            self.__decrementInvincibility()
+            
+        self.timer += 1
 
     def getBoard(self):
         return self.board.getBoard()

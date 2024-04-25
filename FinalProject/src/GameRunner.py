@@ -12,7 +12,7 @@ from sys import stdout
 from TestTools import outputLn, outputInit
 
 class GameRunner: 
-    UPDATE_TIME = 0.25
+    UPDATE_TIME = 0.1
     POSITION = {
         "up"    : (-1,  0), 
         "down"  : ( 1,  0),
