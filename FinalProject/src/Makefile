@@ -22,6 +22,7 @@ client: client_server.beam
 dependencies: python_lib
 
 python_lib:
+	$(PYTHON3) -m ensurepip --upgrade
 	$(PYTHON3) -m pip -q --exists-action i install --user pygame
 	$(PYTHON3) -m pip -q --exists-action i install --user numpy
 	$(PYTHON3) -m pip -q --exists-action i install --user erpy
