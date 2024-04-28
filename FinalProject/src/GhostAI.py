@@ -6,6 +6,13 @@ from Wall import Wall
 from random import choice
 
 def searchAndFind(ghostID : int, board : Board):
+    '''
+        Params  : (ID)    ghostID := The ID of the ghost to move
+                  (Board) board   := The entire board state
+        Purpose : Tries to search and move the ghost AI
+        Return  : ([int, int]) The direction to move to
+        Note    : THIS IS UNUSED; THERE WERE BUGS, SO A SIMPLER AI WAS USED
+    '''
     ghost = board.getObject(ghostID)
     face = ghost.facing
     row, col = board.getPosition(ghostID)
@@ -62,6 +69,13 @@ def searchAndFind(ghostID : int, board : Board):
 
 
 def moveForwardIfPossible(ghostID : int, board : Board) -> tuple: 
+    '''
+        Params  : (ID)    ghostID := The ID of the ghost to move
+                  (Board) board   := The entire board state
+        Purpose : Tries to move the ghost in a direction that is possible
+        Return  : ([int, int]) The direction to move to
+        Note    : THIS IS THE USED AI
+    '''
     ghost         = board.getObject(ghostID)
     behind        = __getOppositeDirection(ghost.getFacing())
     ghostPosition = board.getPosition(ghostID) 
@@ -81,6 +95,13 @@ def moveForwardIfPossible(ghostID : int, board : Board) -> tuple:
 
 def __canGhostMoveTo(direction : tuple, position : tuple, 
                      board : Board) -> bool:
+    '''
+        Params  : ([int, int]) direction := The ID of the ghost to move
+                  ([int, int]) position  := The position that ghost started at
+                  (Board)      board     := The entire board state
+        Purpose : Checks if it legal for the ghost to move in that direction
+        Return  : (bool) True if the ghost can move there, false if it can not
+    '''
     position = __moveWrap(direction, position, board)
     canMove, objectAtPosition = board.canMoveTo(position)
     if canMove:
@@ -91,6 +112,14 @@ def __canGhostMoveTo(direction : tuple, position : tuple,
 
 def __moveWrap(direction : tuple[int, int], position : tuple[int, int], 
                board : Board) -> tuple[int, int]:
+        '''
+        Params  : ([int, int]) direction := The ID of the ghost to move
+                  ([int, int]) position  := The position that ghost started at
+                  (Board)      board     := The entire board state
+        Purpose : Gets the position after moving in the direction, wrapping 
+                  around the edge of the board if needed
+        Return  : ([int, int]) The new position after moving
+    '''
         w , h  = board.getSize() 
         dx, dy = direction 
         x , y  = position 
@@ -99,6 +128,11 @@ def __moveWrap(direction : tuple[int, int], position : tuple[int, int],
         return ((newX + w) % w, (newY + h) % h)
 
 def __getOppositeDirection(direction : tuple) -> tuple:
+    '''
+        Params  : ([int, int]) direction := The direction to get the opposite of
+        Purpose : Gets the opposite direction of the direction given
+        Return  : ([int, int]) The opposite direction
+    '''
     behind = None 
     match direction:
         case Ghost.UP:

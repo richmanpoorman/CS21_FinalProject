@@ -123,6 +123,10 @@ server_receive(Pid, Command, Msg, State) ->
             State
     end.
 
+%%% Name    : server_clock
+%%% Purpose : Starts a loop that will wake up the client to send inputs periodically
+%%% Params  : (pid) LoopPid := The pid of the server to alert
+%%% Return  : (N/A)
 server_clock(LoopPid) ->
     LoopPid ! clock,
     receive 

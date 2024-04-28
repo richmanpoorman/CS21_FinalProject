@@ -88,7 +88,13 @@ import pygame as py
 from TestTools import outputLn
 
 def makeBoardFromImage(imagePath : str):
-   
+    '''
+        Params : (str) imagePath := The image to convert to a board
+        Purpose: Creates a board with wall at pixels with (0, 0, 0, 255) as 
+                 the pixel value
+        Return : (Board) The board with all of the objects
+                 (dict)  The ids of all of the objects
+    '''
     image = py.image.load(imagePath)
     w, h = image.get_width(), image.get_height()
     boardBuilder = BoardBuilder((h, w)) 

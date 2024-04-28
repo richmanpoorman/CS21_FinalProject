@@ -31,9 +31,10 @@ from TestTools import outputLn, outputInit
 
 class ClientRunner:
     def __init__(self):
-
-        ## TODO:: TESTING INITIALIZATION
-        # outputInit()
+        '''
+            Params  : (None)
+            Purpose : Creates a client
+        '''
         
         self.serverIdMap   = dict() 
         self.display       = Display() 
@@ -49,10 +50,21 @@ class ClientRunner:
         outputLn("Client Successfully quit")
 
     def initialize(self):
+        '''
+            Params  : (None)
+            Purpose : Performs actions needed when the client is spawned
+            Return  : (None)
+        '''
         outputLn("Client Runninng")
         self.sendMessage("player_join", dict())
 
     def run(self):
+        '''
+            Params  : (None)
+            Purpose : Runs the client loop to receive and send messages
+            Return  : (None)
+        '''
+
         while True:
             # PREAMBLE TO TRICK PYGAME
             for event in py.event.get():
@@ -69,6 +81,15 @@ class ClientRunner:
                     return
         
     def sendMessage(self, command : str, info : dict) -> None:
+        '''
+            Params  : (str)  command := The message type to send
+                      (dict) info    := The information needed to execute the 
+                                        message
+            Purpose : Sends the message in the correct format across the erlang
+                      channel to the server
+            Return  : (None)
+        '''
+
         outputLn("Client Message Send: " + command + " : " + str(info))
         match command:
             case "input":
@@ -88,6 +109,13 @@ class ClientRunner:
                 self.port.send(message)
 
     def receiveMessage(self, command : str, data : dict) -> None:
+        '''
+            Params  : (str)  command := The message type received from the server
+                      (dict) info    := The data needed to execute the command
+            Purpose : Receives messages from the erlang channel, and performs 
+                      the correct action in response to the message
+            Return  : (None)
+        '''
         match command:
             case "clock":
                 self.sendInputs()
@@ -100,12 +128,26 @@ class ClientRunner:
                 self.isRunning = False
 
     def sendInputs(self):
+        '''
+            Params  : (None)
+            Purpose : Gets the inputs from the user and sends the message 
+                      across the channel
+            Return  : (None)
+        '''
         input, data = self.inputListener.checkAndSendInput()
         if input:
             self.sendMessage(input, data)
 
 
 def unpack(data) -> GameObject | None:
+    '''
+        Params  : (Any) data := The packed information of each cell
+        Purpose : Unpacks the erlang message into a new instance of the 
+                  correct object
+        Return  : (GameObject) The game object with the correct information,
+                               or None if not given anything that matches
+                               the possible objects
+    '''
     name, info = data 
     match name:
         case "wall": 

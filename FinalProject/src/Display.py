@@ -81,6 +81,12 @@ class Display:
 
     
     def __makeBG(self):
+        '''
+            Params  : (None)
+            Purpose : Creates and saves the wall blit when first gotten to save
+                      work on re-rendering the walls
+            Return  : (None)
+        '''
         rows, cols = self.size
         dim_col, dim_row = WINDOW_DIM
         #Get the size of any surface in each cell of the display window
@@ -120,6 +126,11 @@ class Display:
         
 
     def receiveUpdate(self, newBoard : np.ndarray) -> None:
+       '''
+            Params  : (ndarray) newBoard := The new board to render
+            Purpose : Gets the new board to render 
+            Return  : (None)
+        '''
        self.board = newBoard
        self.size  = newBoard.shape
        self.updateDisplay()

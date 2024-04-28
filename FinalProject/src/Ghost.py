@@ -20,12 +20,20 @@ class Ghost(Movable):
     ghostLeft  = py.image.load(pathLeft)
     ghostRight = py.image.load(pathRight)
     def __init__(self):
-        # TODO:: Replace the surface with the starting image
+        '''
+            Params  : (None) 
+            Purpose : Creates a new ghost
+        '''
         super().__init__()
         self.memory = None
 
     @staticmethod 
     def convertImage():
+        '''
+            Params  : (None)
+            Purpose : Converts the surfaces into an image which is easier to render
+            Return  : (None)
+        '''
         Ghost.ghostUp    = Ghost.ghostUp.convert_alpha()
         Ghost.ghostDown  = Ghost.ghostDown.convert_alpha()
         Ghost.ghostLeft  = Ghost.ghostLeft.convert_alpha()
@@ -33,6 +41,11 @@ class Ghost(Movable):
 
 
     def getSurface(self) -> Surface:
+        '''
+            Params  : (None)
+            Purpose : Gets the image for the object to render
+            Return  : (Surface) The display of the object
+        '''
         match self.getFacing():
             case Ghost.UP:
                 return self.ghostUp 
@@ -46,6 +59,11 @@ class Ghost(Movable):
                 return self.ghostRight
     
     def pack(self) -> tuple[str, dict[str, Any]]:
+        '''
+            Params  : (None)
+            Purpose : Packs the object to cross the erlang channel
+            Return  : (["ghost", Message]) The packed object
+        '''
         _, movableInfo = super().pack()
         info = {
             "movable" : movableInfo
@@ -53,5 +71,10 @@ class Ghost(Movable):
         return ("ghost", info)
     
     def unpack(self, info):
+        '''
+            Params  : (dict) info := The data from the object
+            Purpose : Unpacks the object from the erlang channel
+            Return  : (self) The object with all the information
+        '''
         super().unpack(info["movable"])
         return self

@@ -21,6 +21,10 @@ class GameRunner:
     }
 
     def __init__(self):
+        '''
+            Params  : (None)
+            Purpose : Creates the python side of a server
+        '''
         self.logic = self.__initializeLogic()
         self.inbox, self.port = stdio_port_connection()
         self.playerIDs = dict()
@@ -36,23 +40,32 @@ class GameRunner:
 
 
     def __initializeLogic(self) -> GameProcess:
-        # wall_count = 20
-        # boardBuild = BoardBuilder()
-        # board, _ = BoardBuilder()\
-        #             .addWall((0, 5))\
-        #             .addWall((6, 0))\
-        #             .addGhost((1, 1))\
-        #             .getBoard()
+        '''
+            Params  : (None)
+            Purpose : Sets up the server logic
+            Return  : The logic module that was set up
+        '''
         return GameProcess()
 
 
     def updateCycle(self):
+        '''
+            Params  : (None)
+            Purpose : A thread which updates the board at given intervals
+            Return  : (None)
+        '''
         while self.isRunning:
             with self.updateLock:
                 self.logic.updateBoard()
             sleep(GameRunner.UPDATE_TIME)
 
     def __run(self):
+        '''
+            Params  : (None)
+            Purpose : Receives messages and responds to incoming messages 
+                      while running
+            Return  : (None)
+        '''
         for msg in self.inbox:
             with self.updateLock:
                 self.__receiveMessage(msg)
@@ -62,6 +75,11 @@ class GameRunner:
         outputLn("Finished Running")
 
     def __receiveMessage(self, msg):
+        '''
+            Params  : (Message) msg := Message received
+            Purpose : Receives the messages and runs the correct response
+            Return  : (None) 
+        '''
         match msg:
             case (pid, command, info):
                 self.__parseMessage(pid, command, info)
@@ -69,6 +87,13 @@ class GameRunner:
                 outputLn("Bad Message Received")
 
     def __parseMessage(self, pid, command, info):
+        '''
+            Params  : (Pid)  pid     := The PID the message came from
+                      (str)  command := The type of message 
+                      (dict) info    := The information to run the message
+            Purpose : Runs the appropriate message given the pieces of the message
+            Return  : (None)
+        '''
         match command:
             case "quit":
                 playerID = self.playerIDs[pid]
@@ -96,10 +121,20 @@ class GameRunner:
                 outputLn("No match was found for " + str(command))
 
     def __endServer(self):
+        '''
+            Params  : (None)
+            Purpose : Sets the server to not running
+            Return  : (None)
+        '''
         self.isRunning = False
         # self.port.send(Atom("done"))
 
     def __sendBoard(self):
+        '''
+            Params  : (None)
+            Purpose : Packs and sends the board across the erlang channel
+            Return  : (None)
+        '''
         board : list[list[GameObject | None]] = self.logic.getBoard().tolist()
         nonePack : tuple[str, dict[str, str]] = GameObject.defaultPack()
         packedBoard = [[item.pack() if item else nonePack for item in row] for row in board]

@@ -19,31 +19,65 @@ class Player(Movable):
     playerImage = py.image.load(path)
     invincibleEffect = py.image.load(invinciblePath)
     def __init__(self):
-        # TODO:: Replace the surface with the starting image
+        '''
+            Params  : (None)
+            Purpose : Creates a new player
+        ''' 
         super().__init__()
         self.invincibleTimer = 0
 
     
     def isInvincible(self) -> bool:
+        '''
+            Params  : (None)
+            Purpose : Checks if the player is invincible
+            Return  : (bool) Whether or not the player is invincible
+        '''
         return self.invincibleTimer > 0
 
     def setInvincible(self) -> None:
+        '''
+            Params  : (None)
+            Purpose : Makes the player invincible
+            Return  : (None)
+        '''
         self.invincibleTimer = Player.INVINCIBLE_DURATION
 
     def removeInvincible(self) -> None:
+        '''
+            Params  : (None)
+            Purpose : Removes invincibility from the player
+            Return  : (None)
+            Note    : DEPRECIATED
+        '''
         self.invincibleTimer = 0
 
     def decrementInvincibleTimer(self) -> bool:
+        '''
+            Params  : (None)
+            Purpose : Decrements the invincibility timer
+            Return  : (bool) Whether or not the player is still invincible
+        '''
         self.invincibleTimer -= 1
         return self.isInvincible()
     
     @staticmethod 
     def convertImage():
+        '''
+            Params  : (None)
+            Purpose : Converts the surface into an image which is easier to render
+            Return  : (None)
+        '''
         Player.invincibleEffect = Player.invincibleEffect.convert_alpha() 
         Player.playerImage      = Player.playerImage.convert()
 
 
     def getSurface(self) -> Surface:
+        '''
+            Params  : (None)
+            Purpose : Gets the image for the object to render
+            Return  : (Surface) The display of the object
+        '''
         surface = self.playerImage.copy() 
         
         if self.isInvincible():
@@ -75,6 +109,11 @@ class Player(Movable):
         return surface
 
     def pack(self) -> tuple[str, dict[str, Any]]: 
+        '''
+            Params  : (None)
+            Purpose : Packs the object to cross the erlang channel
+            Return  : (["player", Message]) The packed object
+        '''
         _, movableInfo = super().pack()
         info = {
             "invincible" : self.invincibleTimer,
@@ -83,6 +122,11 @@ class Player(Movable):
         return ("player", info)
     
     def unpack(self, info):
+        '''
+            Params  : (dict) info := The data from the object
+            Purpose : Unpacks the object from the erlang channel
+            Return  : (self) The object with all the information
+        '''
         self.invincibleTimer = info["invincible"]
 
         super().unpack(info["movable"])

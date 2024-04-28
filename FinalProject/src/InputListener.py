@@ -9,8 +9,12 @@ class InputListener:
     def __init__(self):
         pass 
 
-
     def checkAndSendInput(self): 
+        '''
+            Params  : (None)
+            Purpose : Gets the input from the player
+            Return  : ([InputType, dict]) The most recent input gotten
+        '''
         command = None
         info = dict()
         for event in py.event.get():
@@ -33,7 +37,11 @@ class InputListener:
         return None, None
 
     def __map_key_to_direction(self, key):
-        """Map Pygame key events to direction strings."""
+        '''
+            Params  : (Key) key := The pygame key input
+            Purpose : Map Pygame key events to direction strings
+            Return  : (str) The string mapping to the direction of the input
+        '''
         match key:
             case py.K_UP:
                 return 'up'
