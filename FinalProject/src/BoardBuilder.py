@@ -64,7 +64,8 @@ class BoardBuilder:
     
     def addPowerPellet(self, position : tuple):
         '''
-            Params : ((int, int)) position := Position of the power pellet to add
+            Params : ((int, int)) position := Position of the 
+                                              power pellet to add
             Purpose: Adds a power pellet at the given location of the board
             Return : (BoardBuilder) A board builder with the power pellet
         '''

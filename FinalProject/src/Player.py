@@ -65,7 +65,8 @@ class Player(Movable):
     def convertImage():
         '''
             Params  : (None)
-            Purpose : Converts the surface into an image which is easier to render
+            Purpose : Converts the surface into an image which is 
+                      easier to render
             Return  : (None)
         '''
         Player.invincibleEffect = Player.invincibleEffect.convert_alpha() 
@@ -83,8 +84,10 @@ class Player(Movable):
         if self.isInvincible():
             # surface.blit(self.invincibleEffect, (0, 0))
             w, h = surface.get_width(), surface.get_height()
-            color = (0, 195, 255, 255) if self.invincibleTimer > Player.INVINCIBLE_DURATION / 2 else \
-                    (199, 152, 0, 255) if self.invincibleTimer > Player.INVINCIBLE_DURATION / 4 else \
+            color = (0, 195, 255, 255) if self.invincibleTimer > \
+                                          Player.INVINCIBLE_DURATION / 2 else \
+                    (199, 152, 0, 255) if self.invincibleTimer > \
+                                          Player.INVINCIBLE_DURATION / 4 else \
                     (199, 0, 0, 255)
             py.draw.circle(surface, 
                            color, 

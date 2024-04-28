@@ -97,7 +97,8 @@ class GameProcess:
     def playerMove(self, playerID : int, direction : tuple) -> None:
         '''
             Params  : (ID)         playerID  := The player to move
-                      ([int, int]) direction := The direction the player tries to move
+                      ([int, int]) direction := The direction the 
+                                                player tries to move
             Purpose : Receives input from player to try to move to a direction
             Return  : (None)
         '''
@@ -108,7 +109,8 @@ class GameProcess:
     def __moveAllPlayers(self):
         '''
             Params  : (None)
-            Purpose : Moves all the players in the direction that they are facing
+            Purpose : Moves all the players in the direction that 
+                      they are facing
             Return  : (None)
         '''
         players = self.board.getAllOfType(Player)
@@ -120,8 +122,10 @@ class GameProcess:
     def __playerMoveObject(self, playerID : int, direction : tuple):
         '''
             Params  : (ID)         playerID  := The player to move
-                      ([int, int]) direction := The direction the players try to move
-            Purpose : Tries to move the player, and updates the board state when they move
+                      ([int, int]) direction := The direction the 
+                                                players try to move
+            Purpose : Tries to move the player, and updates the 
+                      board state when they move
             Return  : (None)
         '''
         if not self.board.isIn(playerID):
@@ -170,7 +174,8 @@ class GameProcess:
     def __moveSingleGhost(self, ghostID : int) -> None:
         '''
             Params  : (ID) ghostID := The ghost to move
-            Purpose : Moves the ghost according to the AI and updates the board state
+            Purpose : Moves the ghost according to the AI and 
+                      updates the board state
             Return  : (None)
         '''
         if not self.board.isIn(ghostID):
@@ -203,8 +208,8 @@ class GameProcess:
         '''
         if not self.board.isIn(ghostID):
             return (0, 0)
-        
-        return moveForwardIfPossible(ghostID, self.board) # searchAndFind(ghostID, self.board)
+         # searchAndFind(ghostID, self.board)
+        return moveForwardIfPossible(ghostID, self.board)
 
     
     def playerDie(self, playerID : int) -> None:
@@ -243,7 +248,8 @@ class GameProcess:
             Params  : (ID) interactableID := The ID of the interactable
                       (ID) playerID       := The ID of the player that picked up
                                              the interactable
-            Purpose : Do the updates when the player tries to pick up an interactable
+            Purpose : Do the updates when the player tries to 
+                      pick up an interactable
             Return  : (None)
         '''
         if not self.board.isIn(interactableID) or not self.board.isIn(playerID):
@@ -312,7 +318,8 @@ class GameProcess:
 
         return emptySpots
 
-    def __moveWrap(self, direction : tuple[int, int], position : tuple[int, int]) -> tuple[int, int]:
+    def __moveWrap(self, direction : tuple[int, int], 
+                   position : tuple[int, int]) -> tuple[int, int]:
         '''
             Params  : ([int, int]) direction := The direction to move
                       ([int, int]) position  := The starting position

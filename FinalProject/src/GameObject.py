@@ -19,7 +19,8 @@ class GameObject:
     def convertImage():
         '''
             Params  : (None)
-            Purpose : Converts the surface into an image which is easier to render
+            Purpose : Converts the surface into an image which is 
+                      easier to render
             Return  : (None)
         '''
         pass

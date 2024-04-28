@@ -9,7 +9,8 @@ Running Instructions:
     TO RUN SERVER:
     1. Find your python 3.10+ installation (called 'python' in future steps)
     2. If you don't have erlang, make sure to install erlang
-    3. Go into the src folder of the project (so it should be ./FinalProject/src/)
+    3. Go into the src folder of the project 
+        (so it should be ./FinalProject/src/)
     4. run 'make dependencies PYTHON3=python' to install the python libraries
     5. run 'make server PYTHON3=python' 
         a. If you don't have make on your computer, you can run 'apt-get make' 
@@ -21,9 +22,11 @@ Running Instructions:
     TO RUN CLIENT:
     1. Find your python 3.10+ installation (called 'python' in future steps)
     2. If you don't have erlang, make sure to install erlang
-    3. Go into the src folder of the project (so it should be ./FinalProject/src/)
+    3. Go into the src folder of the project 
+        (so it should be ./FinalProject/src/)
     4. run 'make dependencies PYTHON3=python' to install the python libraries
-    5. run 'make client PYTHON3=python HOST=(computer name) CLIENT=(client name)' 
+    5. run 
+        'make client PYTHON3=python HOST=(computer name) CLIENT=(client name)' 
         a. If you don't have make on your computer, you can run 'apt-get make' 
         b. The client name is the name you want to be recognized by; this 
            can be any atom that is not already used by the server

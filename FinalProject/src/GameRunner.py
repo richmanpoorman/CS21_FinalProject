@@ -91,7 +91,8 @@ class GameRunner:
             Params  : (Pid)  pid     := The PID the message came from
                       (str)  command := The type of message 
                       (dict) info    := The information to run the message
-            Purpose : Runs the appropriate message given the pieces of the message
+            Purpose : Runs the appropriate message given the 
+                      pieces of the message
             Return  : (None)
         '''
         match command:
@@ -104,7 +105,6 @@ class GameRunner:
                 directionName = info["direction"]
                 direction = GameRunner.POSITION[directionName]
                 self.logic.playerMove(playerID, direction)
-                # self.__onPlayerMove(pid, GameLogic.POSITION_DICT[info["direction"]]) # need testing
                 outputLn("Server Recieved input of: " + str(info))
             case "player_join":
                 playerID = self.logic.addPlayer()
@@ -137,7 +137,8 @@ class GameRunner:
         '''
         board : list[list[GameObject | None]] = self.logic.getBoard().tolist()
         nonePack : tuple[str, dict[str, str]] = GameObject.defaultPack()
-        packedBoard = [[item.pack() if item else nonePack for item in row] for row in board]
+        packedBoard = [[item.pack() if item else nonePack for item in row] 
+                                                          for row in board]
         self.port.send((Atom("display"), {"data" : packedBoard}))
 
 

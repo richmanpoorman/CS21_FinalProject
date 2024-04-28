@@ -22,7 +22,8 @@ class Movable(GameObject):
         
     def setFacing(self, direction : tuple): 
         '''
-            Params  : ([int, int]) direction := The direction the object is facing
+            Params  : ([int, int]) direction := The direction the 
+                                                object is facing
             Purpose : Sets the direction the object is facing
             Return  : (None)
         '''

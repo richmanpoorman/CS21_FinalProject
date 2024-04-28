@@ -31,7 +31,8 @@ class Ghost(Movable):
     def convertImage():
         '''
             Params  : (None)
-            Purpose : Converts the surfaces into an image which is easier to render
+            Purpose : Converts the surfaces into an image which is 
+                      easier to render
             Return  : (None)
         '''
         Ghost.ghostUp    = Ghost.ghostUp.convert_alpha()

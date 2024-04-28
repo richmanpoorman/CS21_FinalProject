@@ -110,7 +110,8 @@ class ClientRunner:
 
     def receiveMessage(self, command : str, data : dict) -> None:
         '''
-            Params  : (str)  command := The message type received from the server
+            Params  : (str)  command := The message type received 
+                                        from the server
                       (dict) info    := The data needed to execute the command
             Purpose : Receives messages from the erlang channel, and performs 
                       the correct action in response to the message

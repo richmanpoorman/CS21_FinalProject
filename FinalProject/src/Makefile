@@ -13,10 +13,13 @@ all: python_lib client_server.beam
 	erlc $<
 
 server: client_server.beam 
-	(echo "client_server:server_start($(ROOM), \"$(PYTHON3)\")."; cat; echo "client_server:server_done($(ROOM)).") | erl -sname $(SNAME) -setcookie $(COOKIE)
+	(echo "client_server:server_start($(ROOM), \"$(PYTHON3)\")."; \
+	 cat; echo "client_server:server_done($(ROOM)).") \
+	 | erl -sname $(SNAME) -setcookie $(COOKIE)
 
 client: client_server.beam 
-	@echo "client_server:client_start('$(SNAME)@$(HOST)', $(ROOM), \"$(PYTHON3)\")." \
+	@echo \
+	"client_server:client_start('$(SNAME)@$(HOST)', $(ROOM), \"$(PYTHON3)\")."\
 		| erl -sname $(CLIENT) -setcookie $(COOKIE)
 
 dependencies: python_lib

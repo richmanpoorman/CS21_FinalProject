@@ -3,7 +3,12 @@
 -record(server_state, {port, players, clock, baseThread}).
 -record(user_state  , {port, server, clock, baseThread}).
 
--export([server_start/2, server_done/1, server_send_port/2, server_get_port/1, client_start/3, receive_base/0]).
+-export([server_start/2, 
+         server_done/1, 
+         server_send_port/2, 
+         server_get_port/1, 
+         client_start/3, 
+         receive_base/0]).
 -define(INPUT_UPDATE_CLOCK, 10).
 -define(DISPLAY_UPDATE_CLOCK, 100).
 -define(SHOULD_PRINT, false).
@@ -16,7 +21,11 @@
 server_start(ServerName, PythonImp) -> 
     PythonSpawn = PythonImp ++ " -u ../src/GameRunner.py",
     BaseThread  = self(),
-    register(ServerName, spawn_link(fun () -> server_initialize(PythonSpawn, BaseThread) end)),
+    register(ServerName, 
+             spawn_link(
+                fun () -> server_initialize(PythonSpawn, BaseThread) end
+             )
+            ),
     output_line("Server Done").
 
 %%% Name    : broadcast
@@ -26,7 +35,9 @@ server_start(ServerName, PythonImp) ->
 %%%           (server_state) State   := The state of the erlang loop 
 %%% Return  : (server_state) The state after broadcasting
 broadcast(Command, Data, State) -> 
-    SendMsg = fun (Player) -> Player ! {from_server, {self(), Command, Data}} end,
+    SendMsg = fun (Player) -> 
+                Player ! {from_server, {self(), Command, Data}} 
+              end,
     Players = State#server_state.players,
     lists:foreach(SendMsg, Players),
     State. 
@@ -40,7 +51,10 @@ server_initialize(PythonSpawn, BaseThread) ->
     Port = open_port({spawn, PythonSpawn}, [binary, {packet,4}, use_stdio]),
     SelfPid = self(),
     Clock   = spawn_link(fun () -> server_clock(SelfPid) end),
-    InitialState = #server_state{port = Port, players = [], clock = Clock, baseThread = BaseThread},
+    InitialState = #server_state{port = Port, 
+                                 players = [], 
+                                 clock = Clock, 
+                                 baseThread = BaseThread},
     server_loop(InitialState).
 
 %%% Name    : server_loop
@@ -102,7 +116,8 @@ server_send(Command, Data, State) ->
 
 %%% Name    : server_receive
 %%% Purpose : Sends message to the port (which is the game logic module)
-%%% Params  : (pid)          Pid     := The pid of the client sending the message
+%%% Params  : (pid)          Pid     := The pid of the client 
+%%%                                     sending the message
 %%%           (atom)         Command := The message type/name the client sent 
 %%%           (dict)         Data    := The data needed to execute the command 
 %%%           (server_state) State   := The state of the erlang loop
@@ -124,7 +139,8 @@ server_receive(Pid, Command, Msg, State) ->
     end.
 
 %%% Name    : server_clock
-%%% Purpose : Starts a loop that will wake up the client to send inputs periodically
+%%% Purpose : Starts a loop that will wake up the 
+%%%           client to send inputs periodically
 %%% Params  : (pid) LoopPid := The pid of the server to alert
 %%% Return  : (N/A)
 server_clock(LoopPid) ->
@@ -175,8 +191,6 @@ client_start(ServerNode, ServerRoom, PythonImp) ->
     output_line("client start"),
     PythonSpawn = PythonImp ++ " -u ../src/ClientRunner.py",
     BaseThread  = self(),
-    % Pid = spawn_link(fun () -> client_initalize(PythonSpawn, ServerNode, ServerRoom, BaseThread) end),
-    % register(client, Pid).
     register(client, self()),
     client_initalize(PythonSpawn, ServerNode, ServerRoom, BaseThread),
     receive 
@@ -194,7 +208,10 @@ client_initalize(PythonSpawn, ServerNode, ServerRoom, BaseThread) ->
     Server  = {ServerRoom, ServerNode}, 
     SelfPid = self(),
     Clock   = spawn_link(fun () -> client_clock(SelfPid) end),
-    InitialState = #user_state{port = Port, server = Server, clock = Clock, baseThread = BaseThread},
+    InitialState = #user_state{port = Port, 
+                               server = Server, 
+                               clock = Clock, 
+                               baseThread = BaseThread},
     client_loop(InitialState),
     output_line("erlang client close").
 
@@ -242,7 +259,8 @@ post(Command, Data, State) ->
     State. 
 
 %%% Name    : client_clock
-%%% Purpose : Starts a loop that will wake up the client to send inputs periodically
+%%% Purpose : Starts a loop that will wake up the client to 
+%%%           send inputs periodically
 %%% Params  : (pid) LoopPid := The pid of the client to alert
 %%% Return  : (N/A)
 client_clock(LoopPid) ->
@@ -331,6 +349,8 @@ output_line(Msg) ->
 output_format(Msg, Param) -> 
     case ?SHOULD_PRINT of
         true -> 
-            file:write_file("Test.txt", io_lib:fwrite(Msg ++ "\n", Param), [append]);
+            file:write_file("Test.txt", 
+                            io_lib:fwrite(Msg ++ "\n", Param),
+                            [append]);
         _ -> ok 
     end.

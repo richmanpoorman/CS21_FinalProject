@@ -17,14 +17,15 @@ from PowerPellet import PowerPellet
 from Board import Board
 
 SCALE_FACTOR = 20
-WINDOW_DIM = (Board.BOARD_SIZE[1] * SCALE_FACTOR, Board.BOARD_SIZE[0] * SCALE_FACTOR)
+WINDOW_DIM = (Board.BOARD_SIZE[1] * SCALE_FACTOR, 
+              Board.BOARD_SIZE[0] * SCALE_FACTOR)
 class Display:
     DOWNTIME = 0.25
     def __init__(self, dimension : tuple[int, int] = WINDOW_DIM):
         '''
             Name    : init
-            Params  : (dimension) tuple[int, int] := optional parameter that has the 
-                      width and height of the board
+            Params  : (dimension) tuple[int, int] := optional parameter that 
+                      has the width and height of the board
             Purpose : initalize specific class variables
             Return  : N/A
         '''
@@ -49,7 +50,8 @@ class Display:
         '''
             Name    : updateDisplay
             Params  : N/A
-            Purpose : Update the display window with all the gameObjects in the board
+            Purpose : Update the display window with all the 
+                      gameObjects in the board
             Return  : N/A
         '''
         self.window.fill((0, 0, 0))
@@ -66,12 +68,14 @@ class Display:
         for r in range(rows):
             for c in range(cols):
                 obj = self.board[r][c]
-                if not obj and not isinstance(obj, Wall): # Checks that it is not none
+                # Checks that it is not none
+                if not obj and not isinstance(obj, Wall): 
                     continue
                 suf = obj.getSurface()
                 #scale the sufarce gotten from the board
                 newSuf = py.transform.scale(suf, (cell_width, cell_height))
-                # calculate the new postion of the surface in the bigger display window
+                # calculate the new postion of the 
+                # surface in the bigger display window
                 x = c * cell_width
                 y = r * cell_height
                 # Draw the upscaled surfaces onto the screen window
@@ -89,7 +93,7 @@ class Display:
         '''
         rows, cols = self.size
         dim_col, dim_row = WINDOW_DIM
-        #Get the size of any surface in each cell of the display window
+        # Get the size of any surface in each cell of the display window
         cell_width = (dim_col // cols)
         cell_height = (dim_row // rows)
 
@@ -98,12 +102,14 @@ class Display:
         for r in range(rows):
             for c in range(cols):
                 obj = self.board[r][c]
-                if not obj or not isinstance(obj, Wall): # Checks that it is not none
+                # Checks that it is not none
+                if not obj or not isinstance(obj, Wall): 
                     continue
                 suf = obj.getSurface()
                 #scale the sufarce gotten from the board
                 newSuf = py.transform.scale(suf, (cell_width, cell_height))
-                # calculate the new postion of the surface in the bigger display window
+                # calculate the new postion of the 
+                # surface in the bigger display window
                 x = c * cell_width
                 y = r * cell_height
                 # Draw the upscaled surfaces onto the screen window
