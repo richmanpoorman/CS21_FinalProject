@@ -1,6 +1,150 @@
+Project Name : Pacbros
+Contributors : Matthew Wong, Timi Kola-Abiola, Jack Sun
+Date         : 28 April 2024
 
+Running Instructions: 
+    The server and clients should be running on different terminals, but 
+    should be on the same wifi 
 
-SOURCES:
+    TO RUN SERVER:
+    1. Find your python 3.10+ installation (called 'python' in future steps)
+    2. If you don't have erlang, make sure to install erlang
+    3. Go into the src folder of the project (so it should be ./FinalProject/src/)
+    4. run 'make dependencies PYTHON3=python' to install the python libraries
+    5. run 'make server PYTHON3=python' 
+        a. If you don't have make on your computer, you can run 'apt-get make' 
+        b. running the command should pop up an erlang node, named 
+                'server-node@(computer name)'
+           this (computer name) is the name the clients connect to
+    6. press CTRL + D to end the server
+
+    TO RUN CLIENT:
+    1. Find your python 3.10+ installation (called 'python' in future steps)
+    2. If you don't have erlang, make sure to install erlang
+    3. Go into the src folder of the project (so it should be ./FinalProject/src/)
+    4. run 'make dependencies PYTHON3=python' to install the python libraries
+    5. run 'make client PYTHON3=python HOST=(computer name) CLIENT=(client name)' 
+        a. If you don't have make on your computer, you can run 'apt-get make' 
+        b. The client name is the name you want to be recognized by; this 
+           can be any atom that is not already used by the server
+        c. The computer name is the name of the server, as listed above in 
+           the server instructions
+    6. exit out of the pygame window that pops up to end the client
+    
+
+Files: 
+    MAKE AND INFO
+    - Makefile 
+        File which:
+        1. installs dependencies with 
+            make dependencies PYTHON3=(user python 3.10+ installation)
+        2. compiles the erlang with 
+            make client_server.beam PYTHON3=(user python 3.10+ installation)
+        3. runs the server with 
+            make server PYTHON3=(user python 3.10+ installation)
+            > Note that this will open up an erlang terminal with 
+              'server-node@(computer name)', where the (computer name) is
+              the name used by the clients
+            > The server can be closed by pressing CTRL + D
+        4. runs the client with 
+            make client PYTHON3=(user python 3.10+ installation) \
+                HOST=(host computer name) \
+                CLIENT=(client name [optional; defaults to 'client'])
+            > The client can exit by exiting the pygame window that pops up
+        5. removes the beam files with 
+            make clean
+    
+    - README
+        Description of the project
+
+    - runClient.sh
+        Shortcut for the client to run if the server is hosted on vm-hw01; 
+        the client can just run 
+            sh runClient.sh 
+            > Answering the prompts properly will let the players in
+
+    ERLANG
+    - client_server.erl 
+        The erlang module which has both code for the client and the server;
+        The messages will be passed between the client and the server allowing
+        for the messages to go across to different computers, as well as 
+        start erlang ports with the correct python Runner file
+
+    PYTHON
+    
+    - ClientRunner.py 
+        The Runner file for the client; handles erlang communications 
+        between the client python and client erlang
+
+    - Display.py 
+        The python file responsible for displaying the board on the client side
+    
+    - InputListener.py
+
+    - GameObject.py 
+        Parent class which respresents a general game object class
+
+    - Movable.py
+        Parent class which represents game objects which can move
+
+    - Ghost.py
+        Represents a ghost on the pacman board
+
+    - Player.py 
+        Represents a player on the pacman board
+
+    - Interactable.py
+        Parent class which represents consumable pickups on the pacman board
+
+    - Pellet.py
+        Represents a regular pellet on the pacman board
+
+    - PowerPellet.py
+        Represents a power pellet on the pacman board
+
+    - Wall.py 
+        Represents a wall on the pacman board
+
+    - Board.py
+        The object which holds the board information, and stores the objects 
+
+    - BoardBuilder.py
+        Creates a new board with a given set up specified in the file
+
+    - GameRunner.py
+        The Runner file for the server; handles erlang communications between
+        the server pythogn and the server erlang
+
+    - GameProcess.py
+        The game logic module, which processes what happens when objects move
+        and the logic behind processing player input
+
+    - GhostAI.py
+        File with possible AI functions for the ghost
+    
+    DEBUGGING
+    - TestTools.py
+        File with functions to print to Test.txt
+
+    - Test.txt
+        File which stores output, as erpy is using the stdout 
+
+    TEST/DEPRECIATED FILES:
+    - Animator.py 
+        Unfinished due to architectural issues
+    - BoardBuilderTest.py
+        Test File for the BoardBuilder
+    - DisplayTest.py 
+        Test File for the Display
+    - Erpy.py
+        Testing for Erpy message passing
+    - FakeMessageFile.py
+        Testing for message passing
+    - port_manager.erl 
+        Testing for message passing
+    
+
+SOURCES: Some additional sources we used in the project
     Ghost Images:
     https://www.pngkey.com/maxpic/u2e6e6e6a9u2e6q8/
     
