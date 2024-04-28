@@ -129,7 +129,7 @@ Files:
     - Test.txt
         File which stores output, as erpy is using the stdout 
 
-    TEST/DEPRECIATED FILES:
+    TEST/DEPRECIATED FILES: (Moved to testing folder)
     - Animator.py 
         Unfinished due to architectural issues
     - BoardBuilderTest.py
