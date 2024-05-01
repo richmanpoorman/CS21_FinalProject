@@ -31,7 +31,7 @@ class GameRunner:
         self.isRunning = True
         
         self.updateLock   = Lock() 
-        self.updateThread = Thread(target = self.updateCycle)
+        self.updateThread = Thread(target = self.__updateCycle)
         self.updateThread.start()
 
         self.isRunning = True
@@ -48,7 +48,7 @@ class GameRunner:
         return GameProcess()
 
 
-    def updateCycle(self):
+    def __updateCycle(self):
         '''
             Params  : (None)
             Purpose : A thread which updates the board at given intervals

@@ -19,7 +19,7 @@
 %%% Params  : (atom) ServerName := The name of the server to start 
 %%% Return  : (bool) If the server was able to start or not
 server_start(ServerName, PythonImp) -> 
-    PythonSpawn = PythonImp ++ " -u ../src/GameRunner.py",
+    PythonSpawn = PythonImp ++ " -u ./GameRunner.py",
     BaseThread  = self(),
     register(ServerName, 
              spawn_link(
@@ -189,7 +189,7 @@ server_get_port(ServerName) ->
 %%% Return  : (bool) True if the client successfully starts
 client_start(ServerNode, ServerRoom, PythonImp) -> 
     output_line("client start"),
-    PythonSpawn = PythonImp ++ " -u ../src/ClientRunner.py",
+    PythonSpawn = PythonImp ++ " -u ./ClientRunner.py",
     BaseThread  = self(),
     register(client, self()),
     client_initalize(PythonSpawn, ServerNode, ServerRoom, BaseThread),
